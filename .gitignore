@@ -1,0 +1,28 @@
+# Development
+.venv/
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.pytest_cache/
+.ruff_cache/
+*.egg-info/
+dist/
+build/
+
+# Testing & Artifacts
+artifacts/
+.docguard/
+coverage.xml
+.coverage
+
+# Node / Frontend
+web/node_modules/
+web/dist/
+web/.env.local
+
+# IDE & OS
+.DS_Store
+.idea/
+.vscode/
+*.swp
