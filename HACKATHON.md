@@ -1,10 +1,13 @@
 # HACKATHON.md
 
 ## Team name
-DocGuard
+We Need _____
 
 ## Team members
-• Atharv Upadhyay (@Atharv386)
+• Atharv Upadhyay
+• Badal Khandelwal
+• Adil Reyaz
+• Shubham Sharma
 
 ## Problem statement
 Problem Statement 5: Automated Documentation Drift Detection
