@@ -1,33 +1,43 @@
 import React from "react";
 import {
   ShieldAlert,
+  LayoutDashboard,
   GitPullRequest,
   BookOpen,
   History,
   Settings,
   Layers,
-  ChevronRight,
-  Activity
+  Activity,
+  User as UserIcon,
 } from "lucide-react";
+import { useAuth } from "../context/AuthContext";
 
 interface SidebarProps {
   currentTab: string;
   setCurrentTab: (tab: string) => void;
   onOpenLanding: () => void;
+  onOpenAuth: () => void;
 }
 
-export const Sidebar: React.FC<SidebarProps> = ({ currentTab, setCurrentTab, onOpenLanding }) => {
+export const Sidebar: React.FC<SidebarProps> = ({
+  currentTab,
+  setCurrentTab,
+  onOpenLanding,
+  onOpenAuth,
+}) => {
+  const { user } = useAuth();
+
   const navItems = [
-    { id: "pr", label: "Pull Requests", icon: GitPullRequest, badge: "Live" },
-    { id: "evaluations", label: "Evaluations", icon: Activity, badge: "78.1%" },
-    { id: "findings", label: "Findings", icon: ShieldAlert },
+    { id: "dashboard", label: "Dashboard", icon: LayoutDashboard },
+    { id: "pr", label: "PR Analysis", icon: GitPullRequest, badge: "Live" },
     { id: "repos", label: "Repositories", icon: BookOpen },
     { id: "history", label: "Scan History", icon: History },
-    { id: "settings", label: "Settings", icon: Settings },
+    { id: "evaluations", label: "Evaluations", icon: Activity, badge: "78.1%" },
+    { id: "settings", label: "Settings & GitHub", icon: Settings },
   ];
 
   return (
-    <aside className="w-64 border-r border-brand-border bg-brand-surface flex flex-col justify-between h-screen select-none">
+    <aside className="w-64 border-r border-brand-border bg-brand-surface flex flex-col justify-between h-screen select-none font-sans">
       <div>
         {/* Brand */}
         <div className="p-5 border-b border-brand-border flex items-center justify-between">
@@ -37,18 +47,20 @@ export const Sidebar: React.FC<SidebarProps> = ({ currentTab, setCurrentTab, onO
             </div>
             <div>
               <span className="font-semibold tracking-tight text-white text-base">DocSentry</span>
-              <span className="block text-[10px] text-gray-500 font-mono tracking-wider uppercase">Drift Reliability</span>
+              <span className="block text-[10px] text-gray-500 font-mono tracking-wider uppercase">
+                Drift Reliability
+              </span>
             </div>
           </div>
           <span className="text-[11px] font-mono text-emerald-400/90 bg-emerald-500/10 px-2 py-0.5 rounded border border-emerald-500/20">
-            v0.1.0
+            v0.2.0
           </span>
         </div>
 
         {/* Navigation */}
         <nav className="p-3 space-y-1">
           <div className="px-3 py-2 text-[11px] font-medium text-gray-400 tracking-wider uppercase">
-            Workspace
+            Platform
           </div>
           {navItems.map((item) => {
             const Icon = item.icon;
@@ -82,28 +94,41 @@ export const Sidebar: React.FC<SidebarProps> = ({ currentTab, setCurrentTab, onO
           <div className="flex items-center justify-between text-xs text-gray-300 font-medium mb-1">
             <span className="flex items-center space-x-1.5">
               <Layers className="w-3.5 h-3.5 text-emerald-400" />
-              <span>PS5 Engine</span>
+              <span>Core Engine</span>
             </span>
             <span className="text-[10px] text-emerald-400 font-mono">AST+GFM</span>
           </div>
           <p className="text-[11px] text-gray-500 leading-tight">
-            Deterministic rule boundary with zero-hallucination evidence validation.
+            Deterministic rule boundary with zero untrusted code execution.
           </p>
         </div>
       </div>
 
-      {/* Footer / Public Links */}
-      <div className="p-4 border-t border-brand-border text-xs text-gray-500 space-y-2">
+      {/* User Profile & Footer */}
+      <div className="p-3 border-t border-brand-border space-y-2">
         <button
-          onClick={onOpenLanding}
-          className="w-full flex items-center justify-between text-gray-400 hover:text-white transition-colors"
+          onClick={onOpenAuth}
+          className="w-full flex items-center justify-between p-2 rounded-lg bg-brand-dark hover:bg-brand-card border border-brand-border text-xs transition-colors"
         >
-          <span>Product Overview</span>
-          <ChevronRight className="w-3.5 h-3.5" />
+          <div className="flex items-center space-x-2.5 truncate">
+            <div className="w-7 h-7 rounded-full bg-emerald-500/20 border border-emerald-500/30 flex items-center justify-center text-emerald-400">
+              <UserIcon className="w-3.5 h-3.5" />
+            </div>
+            <div className="text-left truncate">
+              <div className="text-white font-medium truncate">{user?.username || "Sign In"}</div>
+              <div className="text-[10px] text-gray-400 truncate font-mono">
+                {user?.organization?.name || "Developer Profile"}
+              </div>
+            </div>
+          </div>
+          <span className="text-[10px] font-mono text-emerald-400">
+            {user ? "Active" : "Login"}
+          </span>
         </button>
-        <div className="flex items-center justify-between pt-2 text-[11px] text-gray-500 border-t border-brand-border/40 font-mono">
+
+        <div className="flex items-center justify-between px-1 text-[11px] text-gray-500 border-t border-brand-border/40 pt-2 font-mono">
           <span>Engine: Python 3.12+</span>
-          <span className="flex items-center text-emerald-400">● Operational</span>
+          <span className="flex items-center text-emerald-400">● Live</span>
         </div>
       </div>
     </aside>
