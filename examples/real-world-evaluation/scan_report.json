@@ -1,0 +1,79 @@
+{
+  "schema_version": "1.0",
+  "scan_id": "httpx-eval-pr653",
+  "base_sha": "5ec34d7b9e00525b484a6f3240676ab2d78be8f7",
+  "head_sha": "eac7d9ff060af2b1629c049e7969f220671f9d40",
+  "merge_base_sha": "5ec34d7b9e00525b484a6f3240676ab2d78be8f7",
+  "tool_version": "0.1.0",
+  "model_id": null,
+  "summary": {
+    "changed_files": 1,
+    "code_facts": 1,
+    "doc_spans": 3,
+    "findings": 1,
+    "drift": 1,
+    "potential_drift": 0,
+    "uncertain": 0
+  },
+  "changed_files": [
+    {
+      "path_before": "httpx/config.py",
+      "path_after": "httpx/config.py",
+      "change_type": "modified",
+      "is_binary": false,
+      "hunks": [
+        {
+          "old_start": 3,
+          "old_count": 1,
+          "new_start": 3,
+          "new_count": 1,
+          "header": null,
+          "added_lines": [
+            "DEFAULT_TIMEOUT = 10.0  # Increased for slow API gateways"
+          ],
+          "removed_lines": [
+            "DEFAULT_TIMEOUT = 5.0"
+          ]
+        }
+      ],
+      "old_blob_sha": null,
+      "new_blob_sha": null
+    }
+  ],
+  "findings": [
+    {
+      "finding_id": "DG-0001",
+      "status": "DRIFT",
+      "severity": "high",
+      "rule_id": "PY-CONST-005",
+      "category": "constant_value_mismatch",
+      "title": "Documented constant 'DEFAULT_TIMEOUT' is outdated",
+      "explanation": "Constant 'DEFAULT_TIMEOUT' was updated from 5.0 to 10.0 in httpx/config.py, but documentation still states 5.0.",
+      "evidence": [
+        {
+          "evidence_id": "E1",
+          "role": "code",
+          "path": "httpx/config.py",
+          "line_start": 3,
+          "line_end": 3,
+          "quote": "DEFAULT_TIMEOUT = 10.0  # previously 5.0",
+          "source_kind": "ast_fact"
+        },
+        {
+          "evidence_id": "E2",
+          "role": "documentation",
+          "path": "docs/quickstart.md",
+          "line_start": 5,
+          "line_end": 6,
+          "quote": "By default, `DEFAULT_TIMEOUT` is 5.0 seconds on all network operations.\nYou can customize this value by passing `timeout` to the client.",
+          "source_kind": "doc_span"
+        }
+      ],
+      "confidence": 1.0,
+      "verification": "deterministic",
+      "suggested_action": "Update 'docs/quickstart.md:5' to reflect DEFAULT_TIMEOUT=10.0."
+    }
+  ],
+  "warnings": [],
+  "duration_ms": 78
+}

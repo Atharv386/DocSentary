@@ -1,0 +1,23 @@
+# docguard.yml
+version: 1
+scope:
+  source_globs: ["**/*.py"]
+  docs_globs: ["**/*.md", "**/*.mdx"]
+  exclude_globs:
+    - "**/.venv/**"
+    - "**/build/**"
+    - "**/dist/**"
+    - "**/vendor/**"
+limits:
+  max_files: 250
+  max_file_bytes: 500000
+  max_doc_spans_per_fact: 5
+  max_model_context_chars: 18000
+model:
+  enabled: true
+  timeout_seconds: 30
+  max_retries: 1
+report:
+  include_no_drift: false
+  include_uncertain: true
+  fail_on: never

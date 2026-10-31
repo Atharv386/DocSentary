@@ -1,0 +1,807 @@
+{
+  "metrics": {
+    "total_cases": 50,
+    "passed_cases": 44,
+    "precision": 0.9474,
+    "recall": 0.9,
+    "specificity": 0.9667,
+    "f1_score": 0.9231,
+    "exact_location_accuracy": 0.95,
+    "evidence_accuracy": 0.42,
+    "uncertain_rate": 0.04,
+    "average_latency_ms": 187.9,
+    "confusion_matrix": {
+      "true_positives": 18,
+      "true_negatives": 29,
+      "false_positives": 1,
+      "false_negatives": 2
+    },
+    "category_breakdown": {
+      "confirmed_drift": {
+        "total": 14,
+        "passed": 13,
+        "pass_rate_percent": 92.9
+      },
+      "negative_control": {
+        "total": 14,
+        "passed": 14,
+        "pass_rate_percent": 100.0
+      },
+      "ambiguous_edge_case": {
+        "total": 12,
+        "passed": 8,
+        "pass_rate_percent": 66.7
+      },
+      "doc_semantics": {
+        "total": 10,
+        "passed": 9,
+        "pass_rate_percent": 90.0
+      }
+    }
+  },
+  "results": [
+    {
+      "case_id": "A-01",
+      "passed": true,
+      "expected_status": "DRIFT",
+      "actual_status": "DRIFT",
+      "actual_rule_id": "PY-DEFAULT-001",
+      "actual_findings_count": 1,
+      "actual_doc_path": "docs/config.md",
+      "actual_doc_lines": [
+        2,
+        2
+      ],
+      "exact_location_match": true,
+      "evidence_valid": true,
+      "duration_ms": 194,
+      "notes": "Code defaults to 60, doc asserts 30 seconds without historical qualification."
+    },
+    {
+      "case_id": "A-02",
+      "passed": true,
+      "expected_status": "DRIFT",
+      "actual_status": "DRIFT",
+      "actual_rule_id": "PY-DEFAULT-001",
+      "actual_findings_count": 1,
+      "actual_doc_path": "docs/server.md",
+      "actual_doc_lines": [
+        2,
+        2
+      ],
+      "exact_location_match": true,
+      "evidence_valid": true,
+      "duration_ms": 195,
+      "notes": "Default host literal changed to '0.0.0.0', doc claims localhost."
+    },
+    {
+      "case_id": "A-03",
+      "passed": true,
+      "expected_status": "DRIFT",
+      "actual_status": "DRIFT",
+      "actual_rule_id": "PY-PARAM-002",
+      "actual_findings_count": 1,
+      "actual_doc_path": "docs/auth.md",
+      "actual_doc_lines": [
+        2,
+        2
+      ],
+      "exact_location_match": true,
+      "evidence_valid": true,
+      "duration_ms": 190,
+      "notes": "Removed parameter is explicitly referenced in documentation."
+    },
+    {
+      "case_id": "A-04",
+      "passed": true,
+      "expected_status": "DRIFT",
+      "actual_status": "DRIFT",
+      "actual_rule_id": "PY-PARAM-002",
+      "actual_findings_count": 1,
+      "actual_doc_path": "docs/setup.md",
+      "actual_doc_lines": [
+        2,
+        2
+      ],
+      "exact_location_match": true,
+      "evidence_valid": true,
+      "duration_ms": 191,
+      "notes": "cache_dir parameter was deleted entirely."
+    },
+    {
+      "case_id": "A-05",
+      "passed": true,
+      "expected_status": "POTENTIAL_DRIFT",
+      "actual_status": "POTENTIAL_DRIFT",
+      "actual_rule_id": "PY-SYMBOL-003",
+      "actual_findings_count": 1,
+      "actual_doc_path": "docs/quickstart.md",
+      "actual_doc_lines": [
+        2,
+        2
+      ],
+      "exact_location_match": true,
+      "evidence_valid": true,
+      "duration_ms": 194,
+      "notes": "Symbol old_connect no longer exists in src/api.py."
+    },
+    {
+      "case_id": "A-06",
+      "passed": true,
+      "expected_status": "POTENTIAL_DRIFT",
+      "actual_status": "POTENTIAL_DRIFT",
+      "actual_rule_id": "PY-SYMBOL-003",
+      "actual_findings_count": 1,
+      "actual_doc_path": "docs/session.md",
+      "actual_doc_lines": [
+        2,
+        2
+      ],
+      "exact_location_match": true,
+      "evidence_valid": true,
+      "duration_ms": 194,
+      "notes": "LegacySession class deleted."
+    },
+    {
+      "case_id": "A-07",
+      "passed": true,
+      "expected_status": "DRIFT",
+      "actual_status": "DRIFT",
+      "actual_rule_id": "PY-CONFIG-004",
+      "actual_findings_count": 1,
+      "actual_doc_path": "docs/cli.md",
+      "actual_doc_lines": [
+        2,
+        2
+      ],
+      "exact_location_match": true,
+      "evidence_valid": true,
+      "duration_ms": 200,
+      "notes": "--verbose was removed from CLI options."
+    },
+    {
+      "case_id": "A-08",
+      "passed": true,
+      "expected_status": "DRIFT",
+      "actual_status": "DRIFT",
+      "actual_rule_id": "PY-CONFIG-004",
+      "actual_findings_count": 1,
+      "actual_doc_path": "docs/cli.md",
+      "actual_doc_lines": [
+        2,
+        2
+      ],
+      "exact_location_match": true,
+      "evidence_valid": true,
+      "duration_ms": 188,
+      "notes": "--timeout is no longer recognized by the CLI."
+    },
+    {
+      "case_id": "A-09",
+      "passed": true,
+      "expected_status": "DRIFT",
+      "actual_status": "DRIFT",
+      "actual_rule_id": "PY-CONST-005",
+      "actual_findings_count": 1,
+      "actual_doc_path": "docs/settings.md",
+      "actual_doc_lines": [
+        2,
+        2
+      ],
+      "exact_location_match": true,
+      "evidence_valid": true,
+      "duration_ms": 189,
+      "notes": "MAX_CONNECTIONS value updated in code, stale in docs."
+    },
+    {
+      "case_id": "A-10",
+      "passed": true,
+      "expected_status": "DRIFT",
+      "actual_status": "DRIFT",
+      "actual_rule_id": "PY-CONST-005",
+      "actual_findings_count": 1,
+      "actual_doc_path": "docs/network.md",
+      "actual_doc_lines": [
+        2,
+        2
+      ],
+      "exact_location_match": true,
+      "evidence_valid": true,
+      "duration_ms": 194,
+      "notes": "DEFAULT_PORT updated to 9000 in code."
+    },
+    {
+      "case_id": "A-11",
+      "passed": true,
+      "expected_status": "DRIFT",
+      "actual_status": "DRIFT",
+      "actual_rule_id": "PY-DEFAULT-001",
+      "actual_findings_count": 1,
+      "actual_doc_path": "docs/client.md",
+      "actual_doc_lines": [
+        2,
+        2
+      ],
+      "exact_location_match": true,
+      "evidence_valid": true,
+      "duration_ms": 192,
+      "notes": "Client.fetch method default updated in code."
+    },
+    {
+      "case_id": "A-12",
+      "passed": true,
+      "expected_status": "DRIFT",
+      "actual_status": "DRIFT",
+      "actual_rule_id": "PY-DEFAULT-001",
+      "actual_findings_count": 1,
+      "actual_doc_path": "docs/http.md",
+      "actual_doc_lines": [
+        2,
+        2
+      ],
+      "exact_location_match": true,
+      "evidence_valid": true,
+      "duration_ms": 190,
+      "notes": "Keyword-only default flipped from True to False."
+    },
+    {
+      "case_id": "A-13",
+      "passed": true,
+      "expected_status": "DRIFT",
+      "actual_status": "DRIFT",
+      "actual_rule_id": "PY-PARAM-002",
+      "actual_findings_count": 1,
+      "actual_doc_path": "docs/search.md",
+      "actual_doc_lines": [
+        2,
+        2
+      ],
+      "exact_location_match": true,
+      "evidence_valid": true,
+      "duration_ms": 221,
+      "notes": "Old parameter 'query' removed."
+    },
+    {
+      "case_id": "A-14",
+      "passed": false,
+      "expected_status": "DRIFT",
+      "actual_status": "UNCERTAIN",
+      "actual_rule_id": "PY-DEFAULT-001",
+      "actual_findings_count": 1,
+      "actual_doc_path": "docs/params.md",
+      "actual_doc_lines": [
+        3,
+        3
+      ],
+      "exact_location_match": true,
+      "evidence_valid": true,
+      "duration_ms": 193,
+      "notes": "Table cell still lists stale default 30."
+    },
+    {
+      "case_id": "B-01",
+      "passed": true,
+      "expected_status": "NO_DRIFT",
+      "actual_status": "NO_DRIFT",
+      "actual_rule_id": null,
+      "actual_findings_count": 0,
+      "actual_doc_path": null,
+      "actual_doc_lines": null,
+      "exact_location_match": false,
+      "evidence_valid": false,
+      "duration_ms": 180,
+      "notes": "Private helper change does not affect public documentation."
+    },
+    {
+      "case_id": "B-02",
+      "passed": true,
+      "expected_status": "NO_DRIFT",
+      "actual_status": "NO_DRIFT",
+      "actual_rule_id": null,
+      "actual_findings_count": 0,
+      "actual_doc_path": null,
+      "actual_doc_lines": null,
+      "exact_location_match": false,
+      "evidence_valid": false,
+      "duration_ms": 178,
+      "notes": "Internal variable rename has no public API impact."
+    },
+    {
+      "case_id": "B-03",
+      "passed": true,
+      "expected_status": "NO_DRIFT",
+      "actual_status": "NO_DRIFT",
+      "actual_rule_id": null,
+      "actual_findings_count": 0,
+      "actual_doc_path": null,
+      "actual_doc_lines": null,
+      "exact_location_match": false,
+      "evidence_valid": false,
+      "duration_ms": 229,
+      "notes": "Comment modifications do not alter AST facts."
+    },
+    {
+      "case_id": "B-04",
+      "passed": true,
+      "expected_status": "NO_DRIFT",
+      "actual_status": "NO_DRIFT",
+      "actual_rule_id": null,
+      "actual_findings_count": 0,
+      "actual_doc_path": null,
+      "actual_doc_lines": null,
+      "exact_location_match": false,
+      "evidence_valid": false,
+      "duration_ms": 206,
+      "notes": "Formatting change only; AST normalized defaults identical."
+    },
+    {
+      "case_id": "B-05",
+      "passed": true,
+      "expected_status": "NO_DRIFT",
+      "actual_status": "NO_DRIFT",
+      "actual_rule_id": null,
+      "actual_findings_count": 0,
+      "actual_doc_path": null,
+      "actual_doc_lines": null,
+      "exact_location_match": false,
+      "evidence_valid": false,
+      "duration_ms": 199,
+      "notes": "Test files are excluded or non-impacting on public API docs."
+    },
+    {
+      "case_id": "B-06",
+      "passed": true,
+      "expected_status": "NO_DRIFT",
+      "actual_status": "NO_DRIFT",
+      "actual_rule_id": null,
+      "actual_findings_count": 0,
+      "actual_doc_path": null,
+      "actual_doc_lines": null,
+      "exact_location_match": false,
+      "evidence_valid": false,
+      "duration_ms": 187,
+      "notes": "Documentation was correctly updated within the PR."
+    },
+    {
+      "case_id": "B-07",
+      "passed": true,
+      "expected_status": "NO_DRIFT",
+      "actual_status": "NO_DRIFT",
+      "actual_rule_id": null,
+      "actual_findings_count": 0,
+      "actual_doc_path": null,
+      "actual_doc_lines": null,
+      "exact_location_match": false,
+      "evidence_valid": false,
+      "duration_ms": 180,
+      "notes": "Documentation was kept in sync with parameter removal."
+    },
+    {
+      "case_id": "B-08",
+      "passed": true,
+      "expected_status": "NO_DRIFT",
+      "actual_status": "NO_DRIFT",
+      "actual_rule_id": null,
+      "actual_findings_count": 0,
+      "actual_doc_path": null,
+      "actual_doc_lines": null,
+      "exact_location_match": false,
+      "evidence_valid": false,
+      "duration_ms": 183,
+      "notes": "Adding an optional parameter with default does not break documented usage."
+    },
+    {
+      "case_id": "B-09",
+      "passed": true,
+      "expected_status": "NO_DRIFT",
+      "actual_status": "NO_DRIFT",
+      "actual_rule_id": null,
+      "actual_findings_count": 0,
+      "actual_doc_path": null,
+      "actual_doc_lines": null,
+      "exact_location_match": false,
+      "evidence_valid": false,
+      "duration_ms": 161,
+      "notes": "No code changes occurred."
+    },
+    {
+      "case_id": "B-10",
+      "passed": true,
+      "expected_status": "NO_DRIFT",
+      "actual_status": "NO_DRIFT",
+      "actual_rule_id": null,
+      "actual_findings_count": 0,
+      "actual_doc_path": null,
+      "actual_doc_lines": null,
+      "exact_location_match": false,
+      "evidence_valid": false,
+      "duration_ms": 184,
+      "notes": "Document mentions old value in explicit historical comparison context."
+    },
+    {
+      "case_id": "B-11",
+      "passed": true,
+      "expected_status": "NO_DRIFT",
+      "actual_status": "NO_DRIFT",
+      "actual_rule_id": null,
+      "actual_findings_count": 0,
+      "actual_doc_path": null,
+      "actual_doc_lines": null,
+      "exact_location_match": false,
+      "evidence_valid": false,
+      "duration_ms": 182,
+      "notes": "Historical qualifier suppresses false positive."
+    },
+    {
+      "case_id": "B-12",
+      "passed": true,
+      "expected_status": "NO_DRIFT",
+      "actual_status": "NO_DRIFT",
+      "actual_rule_id": null,
+      "actual_findings_count": 0,
+      "actual_doc_path": null,
+      "actual_doc_lines": null,
+      "exact_location_match": false,
+      "evidence_valid": false,
+      "duration_ms": 184,
+      "notes": "Doc is linked to cache(), which did not change its default."
+    },
+    {
+      "case_id": "B-13",
+      "passed": true,
+      "expected_status": "NO_DRIFT",
+      "actual_status": "NO_DRIFT",
+      "actual_rule_id": null,
+      "actual_findings_count": 0,
+      "actual_doc_path": null,
+      "actual_doc_lines": null,
+      "exact_location_match": false,
+      "evidence_valid": false,
+      "duration_ms": 180,
+      "notes": "Literal default value is identical (30)."
+    },
+    {
+      "case_id": "B-14",
+      "passed": true,
+      "expected_status": "NO_DRIFT",
+      "actual_status": "NO_DRIFT",
+      "actual_rule_id": null,
+      "actual_findings_count": 0,
+      "actual_doc_path": null,
+      "actual_doc_lines": null,
+      "exact_location_match": false,
+      "evidence_valid": false,
+      "duration_ms": 178,
+      "notes": "Docstring changes inside source code don't invalidate user documentation."
+    },
+    {
+      "case_id": "C-01",
+      "passed": true,
+      "expected_status": "NO_DRIFT",
+      "actual_status": "NO_DRIFT",
+      "actual_rule_id": null,
+      "actual_findings_count": 0,
+      "actual_doc_path": null,
+      "actual_doc_lines": null,
+      "exact_location_match": false,
+      "evidence_valid": false,
+      "duration_ms": 184,
+      "notes": "Compatibility alias preserves public function availability."
+    },
+    {
+      "case_id": "C-02",
+      "passed": true,
+      "expected_status": "NO_DRIFT",
+      "actual_status": "NO_DRIFT",
+      "actual_rule_id": null,
+      "actual_findings_count": 0,
+      "actual_doc_path": null,
+      "actual_doc_lines": null,
+      "exact_location_match": false,
+      "evidence_valid": false,
+      "duration_ms": 194,
+      "notes": "Symbol is still exposed at package level."
+    },
+    {
+      "case_id": "C-03",
+      "passed": true,
+      "expected_status": "NO_DRIFT",
+      "actual_status": "NO_DRIFT",
+      "actual_rule_id": null,
+      "actual_findings_count": 0,
+      "actual_doc_path": null,
+      "actual_doc_lines": null,
+      "exact_location_match": false,
+      "evidence_valid": false,
+      "duration_ms": 177,
+      "notes": "Adding a type overload declaration does not break existing documentation."
+    },
+    {
+      "case_id": "C-04",
+      "passed": true,
+      "expected_status": "DRIFT",
+      "actual_status": "DRIFT",
+      "actual_rule_id": "PY-CONST-005",
+      "actual_findings_count": 1,
+      "actual_doc_path": "docs/cfg.md",
+      "actual_doc_lines": [
+        2,
+        2
+      ],
+      "exact_location_match": false,
+      "evidence_valid": true,
+      "duration_ms": 190,
+      "notes": "DEFAULT_T changed from 30 to 60, making doc stale."
+    },
+    {
+      "case_id": "C-05",
+      "passed": false,
+      "expected_status": "UNCERTAIN",
+      "actual_status": "NO_DRIFT",
+      "actual_rule_id": null,
+      "actual_findings_count": 0,
+      "actual_doc_path": null,
+      "actual_doc_lines": null,
+      "exact_location_match": false,
+      "evidence_valid": false,
+      "duration_ms": 184,
+      "notes": "Dynamic expression default requires conservative evaluation or AI interpretation."
+    },
+    {
+      "case_id": "C-06",
+      "passed": true,
+      "expected_status": "NO_DRIFT",
+      "actual_status": "NO_DRIFT",
+      "actual_rule_id": null,
+      "actual_findings_count": 0,
+      "actual_doc_path": null,
+      "actual_doc_lines": null,
+      "exact_location_match": false,
+      "evidence_valid": false,
+      "duration_ms": 179,
+      "notes": "Subclass implementation preserves base signature and defaults."
+    },
+    {
+      "case_id": "C-07",
+      "passed": true,
+      "expected_status": "UNCERTAIN",
+      "actual_status": "NO_DRIFT",
+      "actual_rule_id": null,
+      "actual_findings_count": 0,
+      "actual_doc_path": null,
+      "actual_doc_lines": null,
+      "exact_location_match": false,
+      "evidence_valid": false,
+      "duration_ms": 181,
+      "notes": "Dynamic dispatch string manipulation cannot be proven false statically."
+    },
+    {
+      "case_id": "C-08",
+      "passed": false,
+      "expected_status": "UNCERTAIN",
+      "actual_status": "NO_DRIFT",
+      "actual_rule_id": null,
+      "actual_findings_count": 0,
+      "actual_doc_path": null,
+      "actual_doc_lines": null,
+      "exact_location_match": false,
+      "evidence_valid": false,
+      "duration_ms": 176,
+      "notes": "AST signature has timeout=None; body modification requires semantic interpretation."
+    },
+    {
+      "case_id": "C-09",
+      "passed": false,
+      "expected_status": "UNCERTAIN",
+      "actual_status": "NO_DRIFT",
+      "actual_rule_id": null,
+      "actual_findings_count": 0,
+      "actual_doc_path": null,
+      "actual_doc_lines": null,
+      "exact_location_match": false,
+      "evidence_valid": false,
+      "duration_ms": 182,
+      "notes": "Decorator semantics require behavioral interpretation."
+    },
+    {
+      "case_id": "C-10",
+      "passed": false,
+      "expected_status": "NO_DRIFT",
+      "actual_status": "DRIFT",
+      "actual_rule_id": "PY-DEFAULT-001",
+      "actual_findings_count": 1,
+      "actual_doc_path": "docs/auth.md",
+      "actual_doc_lines": [
+        2,
+        2
+      ],
+      "exact_location_match": false,
+      "evidence_valid": true,
+      "duration_ms": 189,
+      "notes": "Only admin.login changed; auth.md correctly references auth.login."
+    },
+    {
+      "case_id": "C-11",
+      "passed": true,
+      "expected_status": "NO_DRIFT",
+      "actual_status": "NO_DRIFT",
+      "actual_rule_id": null,
+      "actual_findings_count": 0,
+      "actual_doc_path": null,
+      "actual_doc_lines": null,
+      "exact_location_match": false,
+      "evidence_valid": false,
+      "duration_ms": 180,
+      "notes": "Adding a named option with default does not break arbitrary kwargs."
+    },
+    {
+      "case_id": "C-12",
+      "passed": true,
+      "expected_status": "UNCERTAIN",
+      "actual_status": "NO_DRIFT",
+      "actual_rule_id": null,
+      "actual_findings_count": 0,
+      "actual_doc_path": null,
+      "actual_doc_lines": null,
+      "exact_location_match": false,
+      "evidence_valid": false,
+      "duration_ms": 178,
+      "notes": "Function is still callable; deprecation is a semantic warning."
+    },
+    {
+      "case_id": "D-01",
+      "passed": true,
+      "expected_status": "NO_DRIFT",
+      "actual_status": "NO_DRIFT",
+      "actual_rule_id": null,
+      "actual_findings_count": 0,
+      "actual_doc_path": null,
+      "actual_doc_lines": null,
+      "exact_location_match": false,
+      "evidence_valid": false,
+      "duration_ms": 183,
+      "notes": "Migration guide explicitly documents both versions without stale claims."
+    },
+    {
+      "case_id": "D-02",
+      "passed": true,
+      "expected_status": "NO_DRIFT",
+      "actual_status": "NO_DRIFT",
+      "actual_rule_id": null,
+      "actual_findings_count": 0,
+      "actual_doc_path": null,
+      "actual_doc_lines": null,
+      "exact_location_match": false,
+      "evidence_valid": false,
+      "duration_ms": 189,
+      "notes": "Changelogs are historical by definition."
+    },
+    {
+      "case_id": "D-03",
+      "passed": true,
+      "expected_status": "NO_DRIFT",
+      "actual_status": "NO_DRIFT",
+      "actual_rule_id": null,
+      "actual_findings_count": 0,
+      "actual_doc_path": null,
+      "actual_doc_lines": null,
+      "exact_location_match": false,
+      "evidence_valid": false,
+      "duration_ms": 182,
+      "notes": "Example demonstrates passing an explicit custom value (999), not asserting a default."
+    },
+    {
+      "case_id": "D-04",
+      "passed": true,
+      "expected_status": "DRIFT",
+      "actual_status": "DRIFT",
+      "actual_rule_id": "PY-DEFAULT-001",
+      "actual_findings_count": 1,
+      "actual_doc_path": "docs/guide.md",
+      "actual_doc_lines": [
+        5,
+        5
+      ],
+      "exact_location_match": true,
+      "evidence_valid": true,
+      "duration_ms": 190,
+      "notes": "Advanced section still contains stale default 30."
+    },
+    {
+      "case_id": "D-05",
+      "passed": true,
+      "expected_status": "DRIFT",
+      "actual_status": "DRIFT",
+      "actual_rule_id": "PY-DEFAULT-001",
+      "actual_findings_count": 1,
+      "actual_doc_path": "docs/deep.md",
+      "actual_doc_lines": [
+        5,
+        5
+      ],
+      "exact_location_match": true,
+      "evidence_valid": true,
+      "duration_ms": 191,
+      "notes": "DocSpan must preserve full heading stack ['Core', 'Network', 'Client', 'Sockets']."
+    },
+    {
+      "case_id": "D-06",
+      "passed": false,
+      "expected_status": "DRIFT",
+      "actual_status": "UNCERTAIN",
+      "actual_rule_id": "PY-DEFAULT-001",
+      "actual_findings_count": 1,
+      "actual_doc_path": "docs/table.md",
+      "actual_doc_lines": [
+        3,
+        3
+      ],
+      "exact_location_match": true,
+      "evidence_valid": true,
+      "duration_ms": 190,
+      "notes": "Table cell for timeout default is stale."
+    },
+    {
+      "case_id": "D-07",
+      "passed": true,
+      "expected_status": "NO_DRIFT",
+      "actual_status": "NO_DRIFT",
+      "actual_rule_id": null,
+      "actual_findings_count": 0,
+      "actual_doc_path": null,
+      "actual_doc_lines": null,
+      "exact_location_match": false,
+      "evidence_valid": false,
+      "duration_ms": 184,
+      "notes": "Number 30 refers to concurrent connections, not timeout."
+    },
+    {
+      "case_id": "D-08",
+      "passed": true,
+      "expected_status": "DRIFT",
+      "actual_status": "DRIFT",
+      "actual_rule_id": "PY-DEFAULT-001",
+      "actual_findings_count": 1,
+      "actual_doc_path": "docs/guide.md",
+      "actual_doc_lines": [
+        1,
+        1
+      ],
+      "exact_location_match": true,
+      "evidence_valid": true,
+      "duration_ms": 191,
+      "notes": "Sentence-level splitting should isolate 'The default timeout is 30 seconds.'"
+    },
+    {
+      "case_id": "D-09",
+      "passed": true,
+      "expected_status": "DRIFT",
+      "actual_status": "DRIFT",
+      "actual_rule_id": "PY-CONFIG-004",
+      "actual_findings_count": 1,
+      "actual_doc_path": "docs/flags.md",
+      "actual_doc_lines": [
+        2,
+        2
+      ],
+      "exact_location_match": true,
+      "evidence_valid": true,
+      "duration_ms": 193,
+      "notes": "--timeout flag is removed even if wrapped in a markdown link."
+    },
+    {
+      "case_id": "D-10",
+      "passed": true,
+      "expected_status": "NO_DRIFT",
+      "actual_status": "NO_DRIFT",
+      "actual_rule_id": null,
+      "actual_findings_count": 0,
+      "actual_doc_path": null,
+      "actual_doc_lines": null,
+      "exact_location_match": false,
+      "evidence_valid": false,
+      "duration_ms": 170,
+      "notes": "No changes to connect; URL mention does not create false drift."
+    }
+  ]
+}

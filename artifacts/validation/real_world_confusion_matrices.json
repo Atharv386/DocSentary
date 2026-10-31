@@ -1,0 +1,8 @@
+{
+  "deterministic": {
+    "true_positives": 10,
+    "true_negatives": 14,
+    "false_positives": 0,
+    "false_negatives": 8
+  }
+}
