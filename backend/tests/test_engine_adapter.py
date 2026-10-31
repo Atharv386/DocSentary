@@ -1,7 +1,7 @@
 from pathlib import Path
-from docsentry.contracts.findings import EvidenceRef, Finding, ScanReport
-from docsentry.contracts.diff import ChangedFile
+
 from backend.app.adapters.engine_adapter import DocSentryEngineAdapter
+from docsentry.contracts.findings import EvidenceRef, Finding, ScanReport
 
 
 def test_engine_adapter_normalization():

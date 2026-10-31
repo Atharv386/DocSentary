@@ -1,14 +1,15 @@
 import uuid
 from typing import TYPE_CHECKING, Any, Dict, List, Optional
-from sqlalchemy import BigInteger, Boolean, ForeignKey, JSON, String
+
+from sqlalchemy import JSON, BigInteger, Boolean, ForeignKey, String
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from backend.app.db.base import Base, TimestampMixin
 
 if TYPE_CHECKING:
+    from backend.app.db.models.analysis_run import AnalysisRun
     from backend.app.db.models.organization import Organization
     from backend.app.db.models.pull_request import PullRequest
-    from backend.app.db.models.analysis_run import AnalysisRun
 
 
 class Repository(Base, TimestampMixin):

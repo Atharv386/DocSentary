@@ -1,16 +1,17 @@
 import uuid
 from datetime import datetime
 from typing import TYPE_CHECKING, Any, Dict, List, Optional
-from sqlalchemy import DateTime, ForeignKey, Integer, JSON, String, Text
+
+from sqlalchemy import JSON, DateTime, ForeignKey, Integer, String, Text
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from backend.app.db.base import Base, TimestampMixin
 
 if TYPE_CHECKING:
-    from backend.app.db.models.organization import Organization
-    from backend.app.db.models.repository import Repository
-    from backend.app.db.models.pull_request import PullRequest
     from backend.app.db.models.finding import Finding
+    from backend.app.db.models.organization import Organization
+    from backend.app.db.models.pull_request import PullRequest
+    from backend.app.db.models.repository import Repository
 
 
 class AnalysisRun(Base, TimestampMixin):

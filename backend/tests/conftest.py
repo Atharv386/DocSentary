@@ -34,8 +34,8 @@ def db_session():
 
 @pytest.fixture(scope="function")
 def client(db_session: Session):
-    import backend.app.api.v1.routes.webhooks as webhooks_route
     import backend.app.api.v1.routes.pull_requests as pr_route
+    import backend.app.api.v1.routes.webhooks as webhooks_route
     
     orig_wh_session = webhooks_route.SessionLocal
     orig_pr_session = pr_route.SessionLocal

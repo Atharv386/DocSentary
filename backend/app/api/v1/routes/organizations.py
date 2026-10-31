@@ -1,9 +1,10 @@
 from typing import List
+
 from fastapi import APIRouter, Depends, HTTPException, Query, status
 from sqlalchemy import func, select
 from sqlalchemy.orm import Session
 
-from backend.app.core.dependencies import get_current_tenant_org, get_current_user
+from backend.app.core.dependencies import get_current_user
 from backend.app.db.models.audit_log import AuditLog
 from backend.app.db.models.organization import Organization
 from backend.app.db.models.organization_member import OrganizationMember

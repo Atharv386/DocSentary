@@ -95,8 +95,8 @@ class DocSentryEngineAdapter:
 
         try:
             if clone_url and (not (repo_path / ".git").exists()):
-                import tempfile
                 import subprocess
+                import tempfile
                 temp_dir_ctx = tempfile.TemporaryDirectory()
                 target_path = Path(temp_dir_ctx.name)
                 subprocess.run(

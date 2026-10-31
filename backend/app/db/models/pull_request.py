@@ -1,13 +1,14 @@
 import uuid
 from typing import TYPE_CHECKING, List
+
 from sqlalchemy import ForeignKey, Integer, String, UniqueConstraint
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from backend.app.db.base import Base, TimestampMixin
 
 if TYPE_CHECKING:
-    from backend.app.db.models.repository import Repository
     from backend.app.db.models.analysis_run import AnalysisRun
+    from backend.app.db.models.repository import Repository
 
 
 class PullRequest(Base, TimestampMixin):

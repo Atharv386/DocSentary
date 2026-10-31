@@ -1,7 +1,7 @@
 import logging
-from typing import Optional
-from fastapi import APIRouter, Depends, HTTPException, status
+
 import httpx
+from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy import or_, select
 from sqlalchemy.orm import Session
 

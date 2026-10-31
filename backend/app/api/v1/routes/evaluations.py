@@ -1,5 +1,3 @@
-from datetime import datetime, timezone
-from typing import List
 from fastapi import APIRouter, Depends
 from sqlalchemy import select
 from sqlalchemy.orm import Session

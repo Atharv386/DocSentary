@@ -1,14 +1,15 @@
 import uuid
 from typing import TYPE_CHECKING, List, Optional
+
 from sqlalchemy import Boolean, String
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from backend.app.db.base import Base, TimestampMixin
 
 if TYPE_CHECKING:
-    from backend.app.db.models.organization_member import OrganizationMember
-    from backend.app.db.models.finding import Finding
     from backend.app.db.models.audit_log import AuditLog
+    from backend.app.db.models.finding import Finding
+    from backend.app.db.models.organization_member import OrganizationMember
 
 
 class User(Base, TimestampMixin):

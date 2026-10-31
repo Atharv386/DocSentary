@@ -1,6 +1,7 @@
 import uuid
 from typing import TYPE_CHECKING, Any, Dict, Optional
-from sqlalchemy import BigInteger, ForeignKey, JSON, String
+
+from sqlalchemy import JSON, BigInteger, ForeignKey, String
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from backend.app.db.base import Base, TimestampMixin

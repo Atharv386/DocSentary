@@ -1,13 +1,13 @@
 import logging
 from datetime import datetime, timezone
-from typing import Any, Dict, Optional, Tuple
+from typing import Any, Dict, Tuple
+
 from sqlalchemy import select
 from sqlalchemy.orm import Session
 
 from backend.app.db.models.analysis_run import AnalysisRun
 from backend.app.db.models.github_installation import GitHubInstallation
 from backend.app.db.models.organization import Organization
-from backend.app.db.models.pull_request import PullRequest
 from backend.app.db.models.repository import Repository
 from backend.app.db.models.webhook_event import WebhookEvent
 from backend.app.services.pull_request_service import PullRequestService
@@ -73,7 +73,9 @@ class GitHubService:
 
                 if inst_id and action in ["created", "unsuspend"]:
                     # Find or associate organization
-                    org = db.scalar(select(Organization).where(Organization.slug == account_login.lower()))
+                    org = db.scalar(
+                        select(Organization).where(Organization.slug == account_login.lower())
+                    )
                     if not org:
                         # Auto-create or pick default org
                         org = db.scalar(select(Organization).limit(1))

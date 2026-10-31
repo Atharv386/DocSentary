@@ -1,7 +1,8 @@
 import logging
-from typing import Any, Dict, List, Optional
-from fastapi import APIRouter, Depends, HTTPException, status
+from typing import List, Optional
+
 import httpx
+from fastapi import APIRouter, Depends, HTTPException, status
 from pydantic import BaseModel
 from sqlalchemy import select
 from sqlalchemy.orm import Session

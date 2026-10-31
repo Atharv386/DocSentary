@@ -1,4 +1,5 @@
 from typing import List, Optional
+
 from sqlalchemy import select
 from sqlalchemy.orm import Session
 
@@ -106,7 +107,9 @@ class PullRequestService:
                 id=latest_run.id,
                 status=latest_run.status,
                 drift_count=latest_run.summary.get("drift", 0) if latest_run.summary else 0,
-                potential_drift_count=latest_run.summary.get("potential_drift", 0) if latest_run.summary else 0,
+                potential_drift_count=(
+                    latest_run.summary.get("potential_drift", 0) if latest_run.summary else 0
+                ),
                 duration_ms=latest_run.duration_ms,
                 completed_at=latest_run.completed_at,
             )

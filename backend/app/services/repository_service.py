@@ -1,4 +1,5 @@
 from typing import List, Optional
+
 from sqlalchemy import func, select
 from sqlalchemy.orm import Session
 
@@ -77,8 +78,12 @@ class RepositoryService:
     def create_repository(db: Session, organization_id: str, data: RepositoryCreate) -> Repository:
         existing = db.scalar(
             select(Repository).where(
-                (Repository.full_name == data.full_name) |
-                ((Repository.github_repo_id == data.github_repo_id) if data.github_repo_id else False)
+                (Repository.full_name == data.full_name)
+                | (
+                    (Repository.github_repo_id == data.github_repo_id)
+                    if data.github_repo_id
+                    else False
+                )
             )
         )
         if existing:

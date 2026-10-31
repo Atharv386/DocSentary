@@ -1,13 +1,12 @@
 from datetime import datetime, timezone
 from typing import List, Optional
+
 from sqlalchemy import select
 from sqlalchemy.orm import Session, selectinload
 
 from backend.app.db.models.analysis_run import AnalysisRun
 from backend.app.db.models.audit_log import AuditLog
-from backend.app.db.models.evidence import Evidence
 from backend.app.db.models.finding import Finding
-from backend.app.db.models.repository import Repository
 from backend.app.schemas.finding import EvidenceResponse, FindingResponse
 
 
@@ -52,7 +51,9 @@ class FindingService:
         )
 
     @staticmethod
-    def get_finding(db: Session, organization_id: str, finding_id: str) -> Optional[FindingResponse]:
+    def get_finding(
+        db: Session, organization_id: str, finding_id: str
+    ) -> Optional[FindingResponse]:
         f = db.scalar(
             select(Finding)
             .options(selectinload(Finding.evidence))

@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Depends, HTTPException, status
+from fastapi import APIRouter, Depends
 from sqlalchemy import func, select
 from sqlalchemy.orm import Session
 
@@ -7,7 +7,7 @@ from backend.app.db.models.organization import Organization
 from backend.app.db.models.repository import Repository
 from backend.app.db.models.user import User
 from backend.app.db.session import get_db
-from backend.app.schemas.auth import OnboardingStatus, OnboardingUpdateRequest, UserResponse
+from backend.app.schemas.auth import OnboardingStatus, OnboardingUpdateRequest
 
 router = APIRouter(prefix="/users", tags=["Users & Onboarding"])
 

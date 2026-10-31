@@ -12,7 +12,7 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
 # Copy python dependencies definitions
 COPY pyproject.toml README.md ./
 RUN pip install --no-cache-dir --upgrade pip && \
-    pip install --no-cache-dir fastapi uvicorn sqlalchemy alembic pydantic-settings pyjwt cryptography psycopg[binary]
+    pip install --no-cache-dir fastapi uvicorn sqlalchemy alembic pydantic-settings pyjwt cryptography psycopg[binary] bcrypt email-validator httpx
 
 # Copy application source code
 COPY src/ ./src/

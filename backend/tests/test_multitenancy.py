@@ -5,7 +5,6 @@ def test_tenant_data_isolation_repositories(client, tenant_fixture):
     """
     token_a = tenant_fixture["token_a"]
     token_b = tenant_fixture["token_b"]
-    repo_a = tenant_fixture["repo_a"]
     repo_b = tenant_fixture["repo_b"]
 
     headers_a = {"Authorization": f"Bearer {token_a}"}
@@ -41,4 +40,6 @@ def test_tenant_data_isolation_repositories(client, tenant_fixture):
             "X-Organization-Id": tenant_fixture["org_b"].id,
         },
     )
-    assert spoofed_header.status_code == 403, "Tampering with X-Organization-Id must return 403 Forbidden"
+    assert (
+        spoofed_header.status_code == 403
+    ), "Tampering with X-Organization-Id must return 403 Forbidden"

@@ -1,13 +1,14 @@
 from contextlib import asynccontextmanager
+
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
+# Import all models so metadata knows about them
+import backend.app.db.models  # noqa: F401
 from backend.app.api.v1.router import api_router
 from backend.app.core.config import settings
 from backend.app.db.base import Base
 from backend.app.db.session import engine
-# Import all models so metadata knows about them
-import backend.app.db.models  # noqa: F401
 
 
 @asynccontextmanager
