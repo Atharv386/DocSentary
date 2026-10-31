@@ -7,7 +7,8 @@ import {
   ArrowLeft,
   RefreshCw,
   ExternalLink,
-  ShieldAlert,
+  Shield,
+  Play,
 } from "lucide-react";
 import { api, AnalysisRun, PullRequest, Repository } from "../api/client";
 
@@ -28,6 +29,7 @@ export const RepositoryDetailView: React.FC<RepositoryDetailViewProps> = ({
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
   const [activeTab, setActiveTab] = useState<"prs" | "history" | "settings">("prs");
+  const [triggeringScan, setTriggeringScan] = useState(false);
 
   const loadData = async () => {
     if (!repositoryId) return;
@@ -53,44 +55,71 @@ export const RepositoryDetailView: React.FC<RepositoryDetailViewProps> = ({
     loadData();
   }, [repositoryId]);
 
+  const handleTriggerAnalysis = async () => {
+    if (!repository) return;
+    setTriggeringScan(true);
+    try {
+      if (pullRequests.length > 0) {
+        await api.triggerAnalysis(pullRequests[0].id);
+        loadData();
+      } else {
+        alert(
+          "No pull requests currently open to trigger. Open or sync a pull request on GitHub to trigger continuous analysis."
+        );
+      }
+    } catch (err: any) {
+      alert(`Trigger error: ${err.message}`);
+    } finally {
+      setTriggeringScan(false);
+    }
+  };
+
   return (
-    <div className="flex-1 overflow-y-auto bg-brand-dark p-8 space-y-6 font-sans">
+    <div className="flex-1 overflow-y-auto bg-[#F4EFE6] text-[#08161B] p-8 space-y-6 font-sans paper-grain selection:bg-[#1C354D] selection:text-[#EAE7DC]">
       {/* Back button & Repo Header */}
       <div className="space-y-4">
         {error && (
-          <div className="p-3 bg-red-500/10 border border-red-500/20 rounded-lg text-xs text-red-400 font-mono">
+          <div className="p-3 bg-red-50 border border-red-200 rounded text-xs text-red-700 font-mono">
             {error}
           </div>
         )}
         <button
           onClick={onBack}
-          className="inline-flex items-center space-x-1.5 text-xs font-mono text-gray-400 hover:text-white transition-colors"
+          className="inline-flex items-center space-x-1.5 text-xs font-mono text-[#6A7E85] hover:text-[#08161B] transition-colors"
         >
           <ArrowLeft className="w-3.5 h-3.5" />
-          <span>Back to Repositories</span>
+          <span>Back to Monitored Repositories</span>
         </button>
 
-        <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 border-b border-brand-border/60 pb-6">
+        <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 border-b border-[#D8CEBC] pb-6">
           <div className="space-y-1">
             <div className="flex items-center space-x-3">
-              <BookOpen className="w-6 h-6 text-emerald-400" />
-              <h1 className="text-2xl font-bold text-white font-mono">
-                {repository?.full_name || "Atharv386/DocSentary"}
+              <BookOpen className="w-6 h-6 text-[#1C354D]" />
+              <h1 className="font-serif text-3xl font-bold text-[#08161B]">
+                {repository?.full_name || "Repository Details"}
               </h1>
-              <span className="text-xs font-mono px-2 py-0.5 rounded bg-emerald-500/10 border border-emerald-500/20 text-emerald-400">
+              <span className="text-xs font-mono px-2 py-0.5 rounded bg-[#4A6B32]/10 border border-[#4A6B32]/30 text-[#4A6B32] font-semibold">
                 Default: {repository?.default_branch || "main"}
               </span>
             </div>
-            <p className="text-xs text-gray-400 font-mono">
-              Clone URL: <span className="text-gray-300">{repository?.clone_url || "https://github.com/Atharv386/DocSentary.git"}</span>
+            <p className="text-xs text-[#6A7E85] font-mono">
+              Clone URL: <span className="text-[#08161B]">{repository?.clone_url}</span>
             </p>
           </div>
 
           <div className="flex items-center space-x-2">
             <button
+              onClick={handleTriggerAnalysis}
+              disabled={triggeringScan}
+              className="px-3.5 py-2 rounded bg-[#1C354D] hover:bg-[#0D1C29] text-[#EAE7DC] text-xs font-mono font-semibold flex items-center space-x-1.5 transition-colors shadow-paper"
+            >
+              <Play className="w-3.5 h-3.5" />
+              <span>{triggeringScan ? "Analyzing..." : "Trigger Drift Scan"}</span>
+            </button>
+            <button
               onClick={loadData}
               disabled={loading}
-              className="p-2 rounded-lg bg-brand-surface border border-brand-border text-gray-400 hover:text-white transition-colors"
+              className="p-2 rounded bg-[#EBE4D8] hover:bg-[#E2DACB] border border-[#D8CEBC] text-[#3D4F55] transition-colors"
             >
               <RefreshCw className={`w-4 h-4 ${loading ? "animate-spin" : ""}`} />
             </button>
@@ -98,35 +127,35 @@ export const RepositoryDetailView: React.FC<RepositoryDetailViewProps> = ({
               href={repository?.clone_url?.replace(".git", "") || "#"}
               target="_blank"
               rel="noreferrer"
-              className="px-3 py-2 rounded-lg bg-brand-surface hover:bg-brand-card border border-brand-border text-xs font-mono text-gray-300 flex items-center space-x-1.5 transition-colors"
+              className="px-3 py-2 rounded bg-[#EBE4D8] hover:bg-[#E2DACB] border border-[#D8CEBC] text-xs font-mono text-[#08161B] flex items-center space-x-1.5 transition-colors"
             >
-              <span>View on GitHub</span>
-              <ExternalLink className="w-3.5 h-3.5 text-gray-400" />
+              <span>GitHub</span>
+              <ExternalLink className="w-3.5 h-3.5 text-[#6A7E85]" />
             </a>
           </div>
         </div>
       </div>
 
       {/* Tabs */}
-      <div className="flex items-center space-x-4 border-b border-brand-border text-xs font-mono">
+      <div className="flex items-center space-x-4 border-b border-[#D8CEBC] text-xs font-mono">
         <button
           onClick={() => setActiveTab("prs")}
           className={`pb-3 border-b-2 flex items-center space-x-2 transition-colors ${
             activeTab === "prs"
-              ? "border-emerald-400 text-emerald-400 font-semibold"
-              : "border-transparent text-gray-400 hover:text-gray-200"
+              ? "border-[#1C354D] text-[#1C354D] font-bold"
+              : "border-transparent text-[#6A7E85] hover:text-[#08161B]"
           }`}
         >
           <GitPullRequest className="w-3.5 h-3.5" />
-          <span>Pull Requests ({pullRequests.length || 1})</span>
+          <span>Pull Requests ({pullRequests.length})</span>
         </button>
 
         <button
           onClick={() => setActiveTab("history")}
           className={`pb-3 border-b-2 flex items-center space-x-2 transition-colors ${
             activeTab === "history"
-              ? "border-emerald-400 text-emerald-400 font-semibold"
-              : "border-transparent text-gray-400 hover:text-gray-200"
+              ? "border-[#1C354D] text-[#1C354D] font-bold"
+              : "border-transparent text-[#6A7E85] hover:text-[#08161B]"
           }`}
         >
           <History className="w-3.5 h-3.5" />
@@ -137,100 +166,135 @@ export const RepositoryDetailView: React.FC<RepositoryDetailViewProps> = ({
           onClick={() => setActiveTab("settings")}
           className={`pb-3 border-b-2 flex items-center space-x-2 transition-colors ${
             activeTab === "settings"
-              ? "border-emerald-400 text-emerald-400 font-semibold"
-              : "border-transparent text-gray-400 hover:text-gray-200"
+              ? "border-[#1C354D] text-[#1C354D] font-bold"
+              : "border-transparent text-[#6A7E85] hover:text-[#08161B]"
           }`}
         >
           <Settings className="w-3.5 h-3.5" />
-          <span>Repository Settings</span>
+          <span>Repository Config</span>
         </button>
       </div>
 
       {/* Tab 1: Pull Requests */}
       {activeTab === "prs" && (
         <div className="space-y-4">
-          <div className="flex items-center justify-between text-xs text-gray-400">
+          <div className="flex items-center justify-between text-xs text-[#6A7E85] font-mono">
             <span>Pull requests monitored for documentation drift</span>
           </div>
 
-          <div className="divide-y divide-brand-border/60 bg-brand-surface border border-brand-border rounded-xl overflow-hidden">
-            {/* PR Item */}
-            <div className="p-4 hover:bg-brand-card/40 transition-colors flex items-center justify-between">
-              <div className="space-y-1">
-                <div className="flex items-center space-x-2">
-                  <span className="font-semibold text-white text-sm">
-                    PR #42: feat: modernize client timeout parameter and update configuration
-                  </span>
-                  <span className="text-[10px] font-mono px-2 py-0.5 rounded bg-amber-500/10 border border-amber-500/20 text-amber-400">
-                    1 DRIFT DETECTED
-                  </span>
-                </div>
-                <div className="text-xs font-mono text-gray-400 flex items-center space-x-2">
-                  <span>Author: octocat</span>
-                  <span>•</span>
-                  <span>Branch: feat/modern-client → main</span>
-                  <span>•</span>
-                  <span>Commit: cb6234f</span>
-                </div>
+          {pullRequests.length === 0 ? (
+            <div className="p-8 rounded-lg bg-[#EBE4D8] border border-[#D8CEBC] text-center space-y-3 font-mono">
+              <GitPullRequest className="w-8 h-8 text-[#6A7E85] mx-auto" />
+              <div className="font-bold text-sm text-[#08161B]">
+                No active pull requests discovered yet
               </div>
-
-              <div className="flex items-center space-x-3">
-                <button
-                  onClick={() => onInspectPR("scenario-1")}
-                  className="px-3 py-1.5 rounded-lg bg-emerald-500 hover:bg-emerald-400 text-brand-dark font-semibold text-xs font-mono flex items-center space-x-1.5 transition-colors"
-                >
-                  <ShieldAlert className="w-3.5 h-3.5" />
-                  <span>Inspect Drift</span>
-                </button>
-              </div>
+              <p className="text-xs text-[#3D4F55] max-w-sm mx-auto font-sans">
+                As pull requests open on GitHub or webhook events trigger, they will be listed here
+                with automated AST drift inspection.
+              </p>
+              <button
+                onClick={() => onInspectPR("rw-httpx-653")}
+                className="px-4 py-2 rounded bg-[#1C354D] text-[#EAE7DC] text-xs font-mono font-semibold inline-flex items-center space-x-1.5"
+              >
+                <span>Inspect Benchmark PR Reference</span>
+              </button>
             </div>
-          </div>
+          ) : (
+            <div className="divide-y divide-[#D8CEBC] bg-[#EBE4D8] border border-[#D8CEBC] rounded-lg overflow-hidden">
+              {pullRequests.map((pr) => (
+                <div
+                  key={pr.id}
+                  className="p-4 hover:bg-[#F4EFE6] transition-colors flex items-center justify-between"
+                >
+                  <div className="space-y-1">
+                    <div className="flex items-center space-x-2">
+                      <span className="font-bold text-[#08161B] text-sm">
+                        PR #{pr.pr_number}: {pr.title}
+                      </span>
+                    </div>
+                    <div className="text-xs font-mono text-[#6A7E85] flex items-center space-x-2">
+                      <span>Author: {pr.author_username}</span>
+                      <span>•</span>
+                      <span>
+                        Branch: {pr.head_ref} ➔ {pr.base_ref}
+                      </span>
+                    </div>
+                  </div>
+
+                  <button
+                    onClick={() => onInspectPR(pr.id)}
+                    className="px-3 py-1.5 rounded bg-[#1C354D] text-[#EAE7DC] font-semibold text-xs font-mono flex items-center space-x-1.5"
+                  >
+                    <Shield className="w-3.5 h-3.5" />
+                    <span>Inspect Drift</span>
+                  </button>
+                </div>
+              ))}
+            </div>
+          )}
         </div>
       )}
 
       {/* Tab 2: Scan History */}
       {activeTab === "history" && (
         <div className="space-y-3">
-          <div className="p-4 rounded-lg bg-brand-surface border border-brand-border flex items-center justify-between text-xs font-mono">
-            <div>
-              <span className="text-emerald-400 font-semibold">scan-2026-10-31-001</span>
-              <span className="text-gray-400 ml-2">• Trigger: webhook_pr_sync • Commit: cb6234f</span>
+          {analyses.length === 0 ? (
+            <div className="p-8 rounded-lg bg-[#EBE4D8] border border-[#D8CEBC] text-center space-y-2 font-mono">
+              <History className="w-8 h-8 text-[#6A7E85] mx-auto" />
+              <div className="font-bold text-sm text-[#08161B]">No drift analysis runs yet</div>
+              <p className="text-xs text-[#3D4F55] font-sans">
+                Trigger a scan above or send a GitHub webhook event to produce inspection runs.
+              </p>
             </div>
-            <div className="flex items-center space-x-4 text-gray-300">
-              <span className="text-amber-400">1 Drift</span>
-              <span>Duration: 380ms</span>
-              <span className="text-emerald-400">Completed</span>
-            </div>
-          </div>
+          ) : (
+            analyses.map((run) => (
+              <div
+                key={run.id}
+                className="p-4 rounded-lg bg-[#EBE4D8] border border-[#D8CEBC] flex items-center justify-between text-xs font-mono"
+              >
+                <div>
+                  <span className="text-[#1C354D] font-bold">{run.id.slice(0, 13)}</span>
+                  <span className="text-[#6A7E85] ml-2">
+                    • Trigger: {run.trigger_type} • Tool: {run.tool_version}
+                  </span>
+                </div>
+                <div className="flex items-center space-x-3 text-[#08161B]">
+                  <span>{run.duration_ms} ms</span>
+                  <span className="px-2 py-0.5 rounded bg-[#4A6B32] text-white text-[10px] font-bold uppercase">
+                    {run.status}
+                  </span>
+                </div>
+              </div>
+            ))
+          )}
         </div>
       )}
 
       {/* Tab 3: Settings */}
       {activeTab === "settings" && (
-        <div className="max-w-2xl bg-brand-surface border border-brand-border rounded-xl p-6 space-y-5 text-xs font-mono">
-          <h3 className="text-sm font-bold text-white">Repository Configuration</h3>
-
-          <div className="space-y-2">
-            <label className="text-gray-300 block">Documentation Globs (Target Markdown files)</label>
-            <input
-              type="text"
-              defaultValue="docs/**/*.md, README.md, *.md"
-              className="w-full px-3 py-2 bg-brand-dark border border-brand-border rounded text-gray-200"
-            />
-          </div>
-
-          <div className="space-y-2">
-            <label className="text-gray-300 block">Exclusion Globs (Ignored paths)</label>
-            <input
-              type="text"
-              defaultValue="tests/**, .venv/**, vendor/**, node_modules/**"
-              className="w-full px-3 py-2 bg-brand-dark border border-brand-border rounded text-gray-200"
-            />
-          </div>
-
-          <div className="pt-2">
-            <button className="px-4 py-2 rounded-lg bg-emerald-500 hover:bg-emerald-400 text-brand-dark font-semibold">
-              Save Preferences
+        <div className="p-6 rounded-lg bg-[#EBE4D8] border border-[#D8CEBC] space-y-4 font-mono text-xs">
+          <h2 className="font-serif font-bold text-base text-[#08161B]">
+            Repository Drift Detection Overrides
+          </h2>
+          <div className="space-y-3 max-w-lg">
+            <div>
+              <label className="text-[#3D4F55] block mb-1">Markdown Documentation Path</label>
+              <input
+                type="text"
+                defaultValue="docs/**/*.md, README.md"
+                className="w-full px-3 py-2 bg-[#F4EFE6] border border-[#D8CEBC] rounded text-[#08161B]"
+              />
+            </div>
+            <div>
+              <label className="text-[#3D4F55] block mb-1">Source Code Tree</label>
+              <input
+                type="text"
+                defaultValue="src/, backend/"
+                className="w-full px-3 py-2 bg-[#F4EFE6] border border-[#D8CEBC] rounded text-[#08161B]"
+              />
+            </div>
+            <button className="px-4 py-2 bg-[#1C354D] text-[#EAE7DC] rounded font-semibold">
+              Save Configuration Override
             </button>
           </div>
         </div>

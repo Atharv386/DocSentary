@@ -9,6 +9,7 @@ from backend.app.db.models.finding import Finding
 from backend.app.db.models.evidence import Evidence
 from backend.app.db.models.webhook_event import WebhookEvent
 from backend.app.db.models.audit_log import AuditLog
+from backend.app.db.models.evaluation_run import EvaluationRun
 
 __all__ = [
     "User",
@@ -22,4 +23,5 @@ __all__ = [
     "Evidence",
     "WebhookEvent",
     "AuditLog",
+    "EvaluationRun",
 ]

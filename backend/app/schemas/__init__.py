@@ -2,8 +2,17 @@ from backend.app.schemas.auth import (
     AuthResponse,
     DirectAuthRequest,
     GitHubAuthRequest,
+    GitHubTokenConnectRequest,
+    LoginRequest,
+    OnboardingStatus,
+    OnboardingUpdateRequest,
+    SignupRequest,
     Token,
     UserResponse,
+)
+from backend.app.schemas.evaluation import (
+    EvaluationListResponse,
+    EvaluationRunResponse,
 )
 from backend.app.schemas.organization import (
     OrganizationActivityResponse,

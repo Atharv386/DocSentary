@@ -82,26 +82,42 @@ class DocSentryEngineAdapter:
         config_path: Optional[Path] = None,
         no_model: bool = False,
         timeout_seconds: Optional[int] = None,
+        clone_url: Optional[str] = None,
     ) -> NormalizedScanResult:
         """
         Executes scan_repository synchronously or with timeout protection.
+        Supports transient shallow clone if a remote clone_url is provided.
         """
         timeout = timeout_seconds or self.default_timeout_seconds
         start_time = time.perf_counter()
+        temp_dir_ctx = None
+        target_path = repo_path
 
         try:
+            if clone_url and (not (repo_path / ".git").exists()):
+                import tempfile
+                import subprocess
+                temp_dir_ctx = tempfile.TemporaryDirectory()
+                target_path = Path(temp_dir_ctx.name)
+                subprocess.run(
+                    ["git", "clone", "--depth", "50", clone_url, str(target_path)],
+                    check=False,
+                    capture_output=True,
+                    timeout=timeout or 60,
+                )
+
             # 1. Config loading
             resolved_config_path = config_path
             if resolved_config_path is None:
-                if (repo_path / "docsentry.yml").exists():
-                    resolved_config_path = repo_path / "docsentry.yml"
-                elif (repo_path / "docguard.yml").exists():
-                    resolved_config_path = repo_path / "docguard.yml"
+                if (target_path / "docsentry.yml").exists():
+                    resolved_config_path = target_path / "docsentry.yml"
+                elif (target_path / "docguard.yml").exists():
+                    resolved_config_path = target_path / "docguard.yml"
 
             cfg, cfg_hash = load_config(resolved_config_path)
 
             # 2. Git validation and SHA resolution
-            runner = GitRunner(repo_path, timeout_seconds=cfg.model.timeout_seconds)
+            runner = GitRunner(target_path, timeout_seconds=cfg.model.timeout_seconds)
             runner.validate_commit(base_sha)
             runner.validate_commit(head_sha)
             resolved_base_sha = runner.resolve_sha(base_sha)
@@ -111,7 +127,7 @@ class DocSentryEngineAdapter:
             # 3. Build ScanContext
             scan_id = f"scan-{uuid.uuid4().hex[:12]}"
             context = ScanContext(
-                repo_root=repo_path,
+                repo_root=target_path,
                 base_sha=resolved_base_sha,
                 head_sha=resolved_head_sha,
                 merge_base_sha=merge_base_sha,
@@ -193,6 +209,12 @@ class DocSentryEngineAdapter:
                 success=False,
                 error_message=f"Analysis failed: {str(exc)}",
             )
+        finally:
+            if temp_dir_ctx:
+                try:
+                    temp_dir_ctx.cleanup()
+                except Exception:
+                    pass
 
     def normalize_report(self, report: ScanReport) -> NormalizedScanResult:
         """

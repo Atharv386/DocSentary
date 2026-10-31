@@ -75,6 +75,15 @@ class RepositoryService:
 
     @staticmethod
     def create_repository(db: Session, organization_id: str, data: RepositoryCreate) -> Repository:
+        existing = db.scalar(
+            select(Repository).where(
+                (Repository.full_name == data.full_name) |
+                ((Repository.github_repo_id == data.github_repo_id) if data.github_repo_id else False)
+            )
+        )
+        if existing:
+            return existing
+
         github_repo_id = data.github_repo_id or abs(hash(data.full_name)) % 100000000
         repo = Repository(
             organization_id=organization_id,

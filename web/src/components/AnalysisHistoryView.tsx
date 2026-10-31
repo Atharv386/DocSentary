@@ -1,12 +1,14 @@
 import React, { useEffect, useState } from "react";
-import { History, RefreshCw, Clock } from "lucide-react";
+import { History, RefreshCw } from "lucide-react";
 import { api, AnalysisRun } from "../api/client";
 
 interface AnalysisHistoryViewProps {
   onSelectRun?: (runId: string) => void;
 }
 
-export const AnalysisHistoryView: React.FC<AnalysisHistoryViewProps> = ({ onSelectRun: _onSelectRun }) => {
+export const AnalysisHistoryView: React.FC<AnalysisHistoryViewProps> = ({
+  onSelectRun: _onSelectRun,
+}) => {
   const [runs, setRuns] = useState<AnalysisRun[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
   const [filterStatus, setFilterStatus] = useState<string>("all");
@@ -14,7 +16,6 @@ export const AnalysisHistoryView: React.FC<AnalysisHistoryViewProps> = ({ onSele
   const loadHistory = async () => {
     setLoading(true);
     try {
-      // In full environment, fetches all runs across connected repos
       const repos = await api.listRepositories().catch(() => []);
       if (repos.length > 0) {
         const allRuns = await Promise.all(
@@ -22,46 +23,10 @@ export const AnalysisHistoryView: React.FC<AnalysisHistoryViewProps> = ({ onSele
         );
         setRuns(allRuns.flat());
       } else {
-        // Fallback demo fixture
-        setRuns([
-          {
-            id: "scan-2026-10-31-001",
-            organization_id: "org-1",
-            repository_id: "repo-1",
-            pull_request_id: "pr-1",
-            trigger_type: "webhook_pr_sync",
-            status: "completed",
-            base_sha: "7f20563",
-            head_sha: "cb6234f",
-            merge_base_sha: "7f20563",
-            tool_version: "0.2.0",
-            model_id: "qwen3:8b",
-            duration_ms: 380,
-            summary: { drift: 1, potential_drift: 0, changed_files: 2 },
-            created_at: new Date(Date.now() - 3600000).toISOString(),
-            completed_at: new Date(Date.now() - 3599000).toISOString(),
-          },
-          {
-            id: "scan-2026-10-30-002",
-            organization_id: "org-1",
-            repository_id: "repo-1",
-            pull_request_id: "pr-2",
-            trigger_type: "webhook_pr_opened",
-            status: "completed",
-            base_sha: "9d3465f",
-            head_sha: "7f20563",
-            merge_base_sha: "9d3465f",
-            tool_version: "0.2.0",
-            model_id: null,
-            duration_ms: 290,
-            summary: { drift: 0, potential_drift: 0, changed_files: 1 },
-            created_at: new Date(Date.now() - 86400000).toISOString(),
-            completed_at: new Date(Date.now() - 86399000).toISOString(),
-          },
-        ]);
+        setRuns([]);
       }
     } catch {
-      // Graceful fallback
+      setRuns([]);
     } finally {
       setLoading(false);
     }
@@ -77,34 +42,33 @@ export const AnalysisHistoryView: React.FC<AnalysisHistoryViewProps> = ({ onSele
   });
 
   return (
-    <div className="flex-1 overflow-y-auto bg-brand-dark p-8 space-y-6 font-sans">
-      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 border-b border-brand-border/60 pb-6">
+    <div className="flex-1 overflow-y-auto bg-[#F4EFE6] text-[#08161B] p-8 space-y-6 font-sans paper-grain selection:bg-[#1C354D] selection:text-[#EAE7DC]">
+      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 border-b border-[#D8CEBC] pb-6">
         <div>
-          <h1 className="text-2xl font-bold tracking-tight text-white flex items-center space-x-2.5">
-            <History className="w-6 h-6 text-emerald-400" />
+          <h1 className="font-serif text-3xl font-bold tracking-tight text-[#08161B] flex items-center space-x-2.5">
+            <History className="w-6 h-6 text-[#1C354D]" />
             <span>Analysis Run History</span>
           </h1>
-          <p className="text-sm text-gray-400 mt-1">
+          <p className="text-xs text-[#3D4F55] mt-1 font-sans">
             Complete audit trail of all automated documentation drift evaluations.
           </p>
         </div>
 
-        <div className="flex items-center space-x-3">
+        <div className="flex items-center space-x-3 font-mono">
           <select
             value={filterStatus}
             onChange={(e) => setFilterStatus(e.target.value)}
-            className="px-3 py-1.5 bg-brand-surface border border-brand-border rounded-lg text-xs font-mono text-gray-300 focus:outline-none"
+            className="px-3 py-1.5 bg-[#EBE4D8] border border-[#D8CEBC] rounded text-xs text-[#08161B] focus:outline-none"
           >
             <option value="all">All Statuses</option>
             <option value="completed">Completed</option>
             <option value="processing">Processing</option>
             <option value="failed">Failed</option>
           </select>
-
           <button
             onClick={loadHistory}
             disabled={loading}
-            className="p-2 rounded-lg bg-brand-surface border border-brand-border text-gray-400 hover:text-white transition-colors"
+            className="p-2 rounded bg-[#EBE4D8] hover:bg-[#E2DACB] border border-[#D8CEBC] text-[#3D4F55] transition-colors"
           >
             <RefreshCw className={`w-4 h-4 ${loading ? "animate-spin" : ""}`} />
           </button>
@@ -112,59 +76,62 @@ export const AnalysisHistoryView: React.FC<AnalysisHistoryViewProps> = ({ onSele
       </div>
 
       {/* History Table */}
-      <div className="bg-brand-surface border border-brand-border rounded-xl overflow-hidden divide-y divide-brand-border/60">
-        {filteredRuns.map((run) => (
-          <div
-            key={run.id}
-            className="p-4 hover:bg-brand-card/40 transition-colors flex flex-col md:flex-row md:items-center justify-between gap-4 text-xs font-mono"
-          >
-            <div className="space-y-1.5">
-              <div className="flex items-center space-x-2">
-                <span className="text-emerald-400 font-semibold">{run.id}</span>
-                <span className="text-[10px] px-2 py-0.5 rounded bg-brand-card border border-brand-border text-gray-400">
-                  {run.trigger_type}
-                </span>
-                <span
-                  className={`text-[10px] px-2 py-0.5 rounded border ${
-                    run.status === "completed"
-                      ? "text-emerald-400 bg-emerald-500/10 border-emerald-500/20"
-                      : run.status === "failed"
-                      ? "text-red-400 bg-red-500/10 border-red-500/20"
-                      : "text-cyan-400 bg-cyan-500/10 border-cyan-500/20"
-                  }`}
-                >
-                  {run.status.toUpperCase()}
-                </span>
-              </div>
-
-              <div className="text-gray-400 flex items-center space-x-3">
-                <span>
-                  Base: <code className="text-gray-300">{run.base_sha.slice(0, 7)}</code> → Head:{" "}
-                  <code className="text-gray-300">{run.head_sha.slice(0, 7)}</code>
-                </span>
-                <span>•</span>
-                <span className="flex items-center space-x-1">
-                  <Clock className="w-3 h-3" />
-                  <span>{run.duration_ms}ms</span>
-                </span>
-                <span>•</span>
-                <span>{new Date(run.created_at).toLocaleString()}</span>
-              </div>
-            </div>
-
-            <div className="flex items-center space-x-4">
-              <div className="text-right">
-                <div className="font-semibold text-amber-400">
-                  {run.summary?.drift || 0} Drift Findings
-                </div>
-                <div className="text-[11px] text-gray-400">
-                  {run.summary?.changed_files || 1} files evaluated
-                </div>
-              </div>
-            </div>
+      {filteredRuns.length === 0 ? (
+        <div className="p-12 text-center bg-[#EBE4D8] border border-[#D8CEBC] rounded-lg space-y-3 font-mono">
+          <History className="w-10 h-10 text-[#6A7E85] mx-auto" />
+          <div className="font-serif font-bold text-lg text-[#08161B]">
+            No analysis runs recorded yet
           </div>
-        ))}
-      </div>
+          <p className="text-xs text-[#3D4F55] max-w-sm mx-auto font-sans">
+            Connect repositories and trigger pull requests or baseline scans to view historical drift
+            evaluations.
+          </p>
+        </div>
+      ) : (
+        <div className="bg-[#EBE4D8] border border-[#D8CEBC] rounded-lg overflow-hidden shadow-sm">
+          <table className="w-full text-left text-xs font-mono">
+            <thead className="bg-[#F4EFE6] text-[#6A7E85] uppercase text-[10px] border-b border-[#D8CEBC]">
+              <tr>
+                <th className="py-3 px-4">Run ID</th>
+                <th className="py-3 px-4">Trigger</th>
+                <th className="py-3 px-4">Status</th>
+                <th className="py-3 px-4">Commits (Base → Head)</th>
+                <th className="py-3 px-4">Duration</th>
+                <th className="py-3 px-4">Timestamp</th>
+              </tr>
+            </thead>
+            <tbody className="divide-y divide-[#D8CEBC] text-[#08161B]">
+              {filteredRuns.map((r) => (
+                <tr key={r.id} className="hover:bg-[#F4EFE6] transition-colors">
+                  <td className="py-3 px-4 font-bold text-[#1C354D]">{r.id.slice(0, 13)}</td>
+                  <td className="py-3 px-4 text-[#3D4F55]">{r.trigger_type}</td>
+                  <td className="py-3 px-4">
+                    <span
+                      className={`px-2 py-0.5 rounded text-[10px] uppercase font-bold ${
+                        r.status === "completed"
+                          ? "bg-[#4A6B32] text-white"
+                          : r.status === "failed"
+                          ? "bg-red-700 text-white"
+                          : "bg-[#1C354D] text-[#EAE7DC]"
+                      }`}
+                    >
+                      {r.status}
+                    </span>
+                  </td>
+                  <td className="py-3 px-4 text-[#6A7E85]">
+                    <code>{r.base_sha?.slice(0, 7) || "base"}</code> ➔{" "}
+                    <code>{r.head_sha?.slice(0, 7) || "head"}</code>
+                  </td>
+                  <td className="py-3 px-4 text-[#3D4F55]">{r.duration_ms} ms</td>
+                  <td className="py-3 px-4 text-[#6A7E85]">
+                    {new Date(r.created_at).toLocaleDateString()}
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      )}
     </div>
   );
 };
