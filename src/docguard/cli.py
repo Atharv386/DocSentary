@@ -195,6 +195,45 @@ def scan_command(
         raise typer.Exit(code=3)
 
 
+@app.command(name="evaluate")
+def evaluate_command(
+    output_dir: Path = typer.Option(
+        Path("artifacts/evaluation"),
+        "--output-dir",
+        "-o",
+        help="Directory to save evaluation reports.",
+    ),
+    no_model: bool = typer.Option(
+        False,
+        "--no-model",
+        help="Run deterministic rules only.",
+    ),
+) -> None:
+    """Execute the full 50-scenario evaluation benchmark suite and export metrics."""
+    from docguard.evaluation.runner import EvaluationSuiteRunner, export_evaluation_report
+
+    mode_label = "deterministic" if no_model else "qwen3_8b"
+    console.print(
+        f"[bold green]DocGuard Benchmark[/bold green]: Running 50-scenario evaluation suite "
+        f"([cyan]{mode_label}[/cyan])..."
+    )
+
+    runner = EvaluationSuiteRunner()
+    metrics, results = runner.run(model_enabled=not no_model)
+
+    export_evaluation_report(metrics, results, output_dir, label=mode_label)
+
+    console.print(
+        f"[bold green]✓ Benchmark Complete:[/bold green] "
+        f"{metrics.passed_cases}/{metrics.total_cases} passed | "
+        f"Precision: [cyan]{metrics.precision * 100:.1f}%[/cyan] | "
+        f"Recall: [cyan]{metrics.recall * 100:.1f}%[/cyan] | "
+        f"F1: [cyan]{metrics.f1_score:.3f}[/cyan] | "
+        f"Latency: [cyan]{metrics.average_latency_ms}ms[/cyan]"
+    )
+    console.print(f"Reports saved to [cyan]{output_dir}[/cyan]")
+
+
 @app.command(name="replay")
 def replay_command(
     manifest: Path = typer.Option(

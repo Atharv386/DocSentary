@@ -23,10 +23,20 @@ def detect_constant_drift(
 
     span_text = doc_span.text
 
+    # Check if doc mentions constant_name OR any parameter linked to this constant
+    linked_params = code_fact.metadata.get("linked_params", [])
+    if not isinstance(linked_params, list):
+        linked_params = []
+
     mentions_name = bool(
         constant_name in doc_span.inline_code
         or re.search(rf"\b{re.escape(constant_name)}\b", span_text)
+        or any(
+            p in doc_span.inline_code or re.search(rf"\b{re.escape(str(p))}\b", span_text)
+            for p in linked_params
+        )
     )
+
     mentions_old = bool(old_val and re.search(rf"\b{re.escape(old_val)}\b", span_text))
     mentions_new = bool(new_val and re.search(rf"\b{re.escape(new_val)}\b", span_text))
 

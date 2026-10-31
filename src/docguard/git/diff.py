@@ -4,9 +4,7 @@ from typing import Literal
 from docguard.contracts.diff import ChangedFile, DiffHunk
 from docguard.git.runner import GitRunner
 
-HUNK_HEADER_RE = re.compile(
-    r"^@@ -(\d+)(?:,(\d+))? \+(\d+)(?:,(\d+))? @@ ?(.*)$"
-)
+HUNK_HEADER_RE = re.compile(r"^@@ -(\d+)(?:,(\d+))? \+(\d+)(?:,(\d+))? @@ ?(.*)$")
 
 
 def parse_name_status_z(output: str) -> list[tuple[str, str, str | None]]:

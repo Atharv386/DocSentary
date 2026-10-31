@@ -1,4 +1,5 @@
 import re
+from pathlib import Path
 
 from docguard.contracts.code import CodeFact
 from docguard.contracts.docs import DocSpan
@@ -11,6 +12,18 @@ HISTORICAL_MARKERS = [
     "prior to",
     "was ",
     "used to be",
+    "upgrade from",
+    "in version 1",
+    "in v1",
+]
+
+HISTORICAL_DOC_NAMES = [
+    "changelog.md",
+    "history.md",
+    "changes.md",
+    "releases.md",
+    "news.md",
+    "migration.md",
 ]
 
 
@@ -19,6 +32,28 @@ def normalize_literal(val: str | None) -> str:
         return ""
     val_str = str(val).strip().strip("'\"")
     return val_str
+
+
+def is_historical_context(doc_span: DocSpan) -> bool:
+    # 1. Check filename
+    doc_file_name = Path(doc_span.path).name.lower()
+    if doc_file_name in HISTORICAL_DOC_NAMES:
+        return True
+
+    # 2. Check headings for historical/release markers
+    for h in doc_span.heading_path:
+        hl = h.lower()
+        if (
+            re.search(r"\bv\d+\.\d+", hl)
+            or "release" in hl
+            or "migration" in hl
+            or "changelog" in hl
+        ):
+            return True
+
+    # 3. Check paragraph text markers
+    span_lower = doc_span.text.lower()
+    return any(marker in span_lower for marker in HISTORICAL_MARKERS)
 
 
 def detect_default_drift(
@@ -38,7 +73,27 @@ def detect_default_drift(
     member = code_fact.member or code_fact.symbol or ""
 
     span_text = doc_span.text
-    span_lower = span_text.lower()
+
+    # Sibling symbol disambiguation:
+    # If the span explicitly mentions an UNCHANGED sibling function from the same file,
+    # but does NOT mention code_fact.symbol, do not attribute this span to code_fact!
+    siblings = code_fact.metadata.get("sibling_symbols", [])
+    if siblings and isinstance(siblings, list) and code_fact.symbol:
+        has_symbol = (
+            code_fact.symbol in doc_span.inline_code
+            or re.search(rf"\b{re.escape(code_fact.symbol)}\b", span_text)
+            or any(code_fact.symbol in h for h in doc_span.heading_path)
+            or code_fact.symbol in doc_span.path
+        )
+        if not has_symbol:
+            for sib in siblings:
+                if (
+                    sib in doc_span.inline_code
+                    or re.search(rf"\b{re.escape(str(sib))}\b", span_text)
+                    or any(str(sib) in h for h in doc_span.heading_path)
+                    or str(sib) in doc_span.path
+                ):
+                    return None
 
     # Require member identifier mention in span
     mentions_member = bool(
@@ -50,14 +105,11 @@ def detect_default_drift(
     mentions_old = bool(re.search(rf"\b{re.escape(old_val)}\b", span_text))
     mentions_new = bool(new_val and re.search(rf"\b{re.escape(new_val)}\b", span_text))
 
-    # Check for historical explanation context
-    has_historical = any(marker in span_lower for marker in HISTORICAL_MARKERS)
-
     if not (mentions_member and mentions_old):
         return None
 
     # If the docs already mention the new value or discuss historical versions, no drift
-    if mentions_new or has_historical:
+    if mentions_new or is_historical_context(doc_span):
         return None
 
     # Construct evidence

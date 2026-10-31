@@ -56,7 +56,9 @@ class ModelClient:
     def __init__(self) -> None:
         self.enabled = os.environ.get("DOCGUARD_MODEL_ENABLED", "true").lower() == "true"
         self.provider = os.environ.get("DOCGUARD_MODEL_PROVIDER", "ollama").lower()
-        self.base_url = os.environ.get("DOCGUARD_MODEL_BASE_URL", "http://localhost:11434").rstrip("/")
+        self.base_url = os.environ.get("DOCGUARD_MODEL_BASE_URL", "http://localhost:11434").rstrip(
+            "/"
+        )
         self.api_key = os.environ.get("DOCGUARD_MODEL_API_KEY", "")
         self.model_name = os.environ.get("DOCGUARD_MODEL_NAME", "qwen3:8b")
         timeout_val = os.environ.get("DOCGUARD_MODEL_TIMEOUT_SECONDS", "60")
@@ -71,8 +73,7 @@ class ModelClient:
                 status="UNCERTAIN",
                 severity="info",
                 explanation=(
-                    "Model verifier endpoint not configured; "
-                    "semantic candidate marked UNCERTAIN."
+                    "Model verifier endpoint not configured; semantic candidate marked UNCERTAIN."
                 ),
                 evidence_ids=[i.evidence_id for i in bundle.evidence_items[:2]],
                 reasoning_type="insufficient_context",
@@ -96,9 +97,7 @@ class ModelClient:
         else:
             # OpenAI-compatible /v1/chat/completions
             endpoint = (
-                "/chat/completions"
-                if self.base_url.endswith("/v1")
-                else "/v1/chat/completions"
+                "/chat/completions" if self.base_url.endswith("/v1") else "/v1/chat/completions"
             )
             url = f"{self.base_url}{endpoint}"
             payload = {

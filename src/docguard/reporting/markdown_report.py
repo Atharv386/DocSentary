@@ -66,7 +66,7 @@ def render_markdown_report(report: ScanReport) -> str:
             doc_loc = f"`{doc_ev.path}:{doc_ev.line_start}-{doc_ev.line_end}`"
             code_loc = f"`{code_ev.path}:{code_ev.line_start}`"
             row = (
-                f"| **Location**: {doc_loc}<br><br>\"{doc_ev.quote}\" | "
+                f'| **Location**: {doc_loc}<br><br>"{doc_ev.quote}" | '
                 f"**Location**: {code_loc}<br><br>`{code_ev.quote}` |"
             )
             lines.append(row)
@@ -74,7 +74,7 @@ def render_markdown_report(report: ScanReport) -> str:
         elif f.evidence:
             for ev in f.evidence:
                 ev_role = ev.role.capitalize()
-                lines.append(f"- **{ev_role}** (`{ev.path}:{ev.line_start}`): \"{ev.quote}\"")
+                lines.append(f'- **{ev_role}** (`{ev.path}:{ev.line_start}`): "{ev.quote}"')
             lines.append("")
 
     if report.warnings:

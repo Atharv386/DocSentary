@@ -12,10 +12,12 @@ dist/
 build/
 
 # Testing & Artifacts
-artifacts/
+artifacts/*
+!artifacts/evaluation/
 .docguard/
 coverage.xml
 .coverage
+examples/real-world-evaluation/httpx_case_repo/
 
 # Node / Frontend
 web/node_modules/

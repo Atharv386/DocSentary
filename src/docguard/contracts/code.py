@@ -1,4 +1,4 @@
-from typing import Literal
+from typing import Any, Literal
 
 from pydantic import BaseModel, Field
 
@@ -30,4 +30,4 @@ class CodeFact(BaseModel):
     line_after: int | None = None
     source_change_id: str
     static_confidence: Literal["high", "medium", "low"]
-    metadata: dict[str, str | int | bool] = Field(default_factory=dict)
+    metadata: dict[str, Any] = Field(default_factory=dict)

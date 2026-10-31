@@ -110,17 +110,13 @@ def test_f03_removed_symbol(tmp_path: Path) -> None:
 def test_f04_renamed_flag(tmp_path: Path) -> None:
     base = {
         "src/cli.py": (
-            "import argparse\n"
-            "p = argparse.ArgumentParser()\n"
-            "p.add_argument('--timeout')\n"
+            "import argparse\np = argparse.ArgumentParser()\np.add_argument('--timeout')\n"
         ),
         "docs/flags.md": "# CLI Flags\n`--timeout` specifies connection timeout.\n",
     }
     head = {
         "src/cli.py": (
-            "import argparse\n"
-            "p = argparse.ArgumentParser()\n"
-            "p.add_argument('--request-timeout')\n"
+            "import argparse\np = argparse.ArgumentParser()\np.add_argument('--request-timeout')\n"
         ),
         "docs/flags.md": "# CLI Flags\n`--timeout` specifies connection timeout.\n",
     }
@@ -136,9 +132,7 @@ def test_f05_no_doc_impact(tmp_path: Path) -> None:
     }
     head = {
         "src/internal.py": (
-            "def _compute_hash(data):\n"
-            "    optimized_x = 2\n"
-            "    return optimized_x\n"
+            "def _compute_hash(data):\n    optimized_x = 2\n    return optimized_x\n"
         ),
         "docs/guide.md": "# Guide\nOur system securely processes records.\n",
     }

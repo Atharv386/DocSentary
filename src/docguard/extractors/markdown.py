@@ -9,9 +9,6 @@ SENTENCE_SPLIT_RE = re.compile(r"(?<=[.!?])\s+(?=[A-Z0-9`\"'])")
 
 
 def extract_inline_metadata(tokens: list[Any]) -> tuple[str, list[str], list[str]]:
-    """
-    Extracts plain text, inline code tokens, and link hrefs from an inline token stream.
-    """
     text_parts: list[str] = []
     inline_code: list[str] = []
     links: list[str] = []
@@ -51,6 +48,12 @@ class MarkdownExtractor:
         spans: list[DocSpan] = []
         heading_stack: list[str] = []
 
+        current_row_cells: list[str] = []
+        current_row_inlines: list[str] = []
+        current_row_start = 1
+        current_row_end = 1
+        in_table_row = False
+
         idx = 0
         while idx < len(tokens):
             token = tokens[idx]
@@ -58,9 +61,7 @@ class MarkdownExtractor:
             # Headings
             if token.type == "heading_open":
                 tag_level = (
-                    int(token.tag[1:])
-                    if len(token.tag) > 1 and token.tag[1:].isdigit()
-                    else 1
+                    int(token.tag[1:]) if len(token.tag) > 1 and token.tag[1:].isdigit() else 1
                 )
                 inline_token = tokens[idx + 1] if idx + 1 < len(tokens) else None
                 heading_text = inline_token.content if inline_token else ""
@@ -75,7 +76,7 @@ class MarkdownExtractor:
 
                 spans.append(
                     DocSpan(
-                        span_id=f"doc-{len(spans)+1}",
+                        span_id=f"doc-{len(spans) + 1}",
                         path=path,
                         block_type="heading",
                         heading_path=list(heading_stack),
@@ -104,14 +105,11 @@ class MarkdownExtractor:
 
                 raw_slice = "".join(raw_lines[line_start - 1 : line_end]).strip()
 
-                # Sentence-level splitting
                 sentences = [s.strip() for s in SENTENCE_SPLIT_RE.split(text) if s.strip()]
                 if len(sentences) > 1:
                     current_line = line_start
                     for s in sentences:
-                        # Find where sentence starts in the raw slice lines
                         s_start_line = current_line
-                        # Determine line range by searching sentence start in lines
                         for line_idx in range(current_line - 1, line_end):
                             if s[:20] in raw_lines[line_idx]:
                                 s_start_line = line_idx + 1
@@ -126,7 +124,7 @@ class MarkdownExtractor:
                         s_links = [link for link in links if link in s]
                         spans.append(
                             DocSpan(
-                                span_id=f"doc-{len(spans)+1}",
+                                span_id=f"doc-{len(spans) + 1}",
                                 path=path,
                                 block_type="paragraph",
                                 heading_path=list(heading_stack),
@@ -141,7 +139,7 @@ class MarkdownExtractor:
                 else:
                     spans.append(
                         DocSpan(
-                            span_id=f"doc-{len(spans)+1}",
+                            span_id=f"doc-{len(spans) + 1}",
                             path=path,
                             block_type="paragraph",
                             heading_path=list(heading_stack),
@@ -163,7 +161,7 @@ class MarkdownExtractor:
 
                 spans.append(
                     DocSpan(
-                        span_id=f"doc-{len(spans)+1}",
+                        span_id=f"doc-{len(spans) + 1}",
                         path=path,
                         block_type="fence",
                         heading_path=list(heading_stack),
@@ -175,25 +173,51 @@ class MarkdownExtractor:
                     )
                 )
 
-            # Table cells
-            elif token.type in ("th_open", "td_open"):
-                inline_token = tokens[idx + 1] if idx + 1 < len(tokens) else None
-                cell_text = inline_token.content if inline_token else ""
+            # Table rows
+            elif token.type == "tr_open":
+                in_table_row = True
+                current_row_cells = []
+                current_row_inlines = []
                 t_map = token.map
-                line_start = t_map[0] + 1 if t_map else 1
-                line_end = t_map[1] if t_map else line_start
+                current_row_start = t_map[0] + 1 if t_map else 1
+                current_row_end = t_map[1] if t_map else current_row_start
+
+            elif token.type in ("th_open", "td_open") and in_table_row:
+                inline_token = tokens[idx + 1] if idx + 1 < len(tokens) else None
+                cell_text = ""
+                cell_inlines: list[str] = []
+                if inline_token and inline_token.children:
+                    cell_text, cell_inlines, _ = extract_inline_metadata(inline_token.children)
+                elif inline_token:
+                    cell_text = inline_token.content
 
                 if cell_text.strip():
+                    current_row_cells.append(cell_text.strip())
+                    current_row_inlines.extend(cell_inlines)
+
+            elif token.type == "tr_close" and in_table_row:
+                in_table_row = False
+                if current_row_cells:
+                    row_text = " | ".join(current_row_cells)
+                    # If token had no map, estimate line from raw lines
+                    if current_row_start == 1:
+                        for l_idx, r_line in enumerate(raw_lines, start=1):
+                            if current_row_cells[0] in r_line:
+                                current_row_start = l_idx
+                                current_row_end = l_idx
+                                break
+
                     spans.append(
                         DocSpan(
-                            span_id=f"doc-{len(spans)+1}",
+                            span_id=f"doc-{len(spans) + 1}",
                             path=path,
                             block_type="table_cell",
                             heading_path=list(heading_stack),
-                            text=cell_text.strip(),
-                            raw_text=cell_text.strip(),
-                            line_start=line_start,
-                            line_end=line_end,
+                            text=row_text,
+                            raw_text=f"| {row_text} |",
+                            line_start=current_row_start,
+                            line_end=current_row_end,
+                            inline_code=current_row_inlines,
                         )
                     )
 

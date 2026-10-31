@@ -108,20 +108,18 @@ def scan_repository(context: ScanContext, deps: Dependencies) -> ScanReport:
     # 5. Deterministic rule evaluation
     deterministic_findings = deps.rule_engine.evaluate(code_facts, doc_spans, candidates)
 
-    existing_keys = {
-        (
-            f.rule_id,
-            f.evidence[0].path if f.evidence else "",
-            f.evidence[1].path if len(f.evidence) > 1 else "",
-        )
+    covered_doc_spans = {
+        (ev.path, ev.line_start)
         for f in deterministic_findings
+        for ev in f.evidence
+        if ev.role == "documentation"
     }
 
     # 6. Optional AI verifier for remaining behavioral candidates
     ai_findings = []
     if context.model_enabled:
         ai_findings = deps.model_verifier.verify_candidates(
-            code_facts, doc_spans, candidates, existing_keys
+            code_facts, doc_spans, candidates, covered_doc_spans
         )
 
     all_raw_findings = deterministic_findings + ai_findings

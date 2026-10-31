@@ -19,6 +19,7 @@ export interface Finding {
   evidence: EvidenceRef[];
   confidence: number | null;
   verification: "deterministic" | "model_assisted" | "human_fixture";
+  provenance?: "DETERMINISTIC" | "QWEN3-8B VERIFIED" | "EVIDENCE VALIDATED";
   suggested_action?: string;
 }
 
@@ -69,10 +70,95 @@ export interface Scenario {
   branch: string;
   targetBranch: string;
   description: string;
+  category?: "real_world" | "confirmed_drift" | "negative_control" | "ambiguous_edge";
   report: ScanReport;
 }
 
 export const SCENARIOS: Scenario[] = [
+  {
+    id: "rw-httpx-653",
+    prNumber: 653,
+    prTitle: "perf(config): increase DEFAULT_TIMEOUT from 5.0 to 10.0s",
+    author: "florimondmanca",
+    branch: "config/increase-timeout",
+    targetBranch: "master",
+    category: "real_world",
+    description: "Historical open-source drift from encode/httpx PR #653. DEFAULT_TIMEOUT constant was doubled in code, but docs/quickstart.md still stated 5.0s.",
+    report: {
+      schema_version: "1.0",
+      scan_id: "httpx-eval-pr653",
+      base_sha: "4a932462",
+      head_sha: "f52b64e8",
+      merge_base_sha: "4a932462",
+      tool_version: "0.1.0",
+      model_id: null,
+      summary: {
+        changed_files: 1,
+        code_facts: 1,
+        doc_spans: 3,
+        findings: 1,
+        drift: 1,
+        potential_drift: 0,
+        uncertain: 0
+      },
+      changed_files: [
+        {
+          path_before: "httpx/config.py",
+          path_after: "httpx/config.py",
+          change_type: "modified",
+          is_binary: false,
+          hunks: [
+            {
+              old_start: 3,
+              old_count: 1,
+              new_start: 3,
+              new_count: 1,
+              header: "DEFAULT_TIMEOUT",
+              added_lines: ["DEFAULT_TIMEOUT = 10.0  # Increased for slow gateways"],
+              removed_lines: ["DEFAULT_TIMEOUT = 5.0"]
+            }
+          ]
+        }
+      ],
+      findings: [
+        {
+          finding_id: "DG-0001",
+          status: "DRIFT",
+          severity: "high",
+          rule_id: "PY-CONST-005",
+          category: "constant_value_mismatch",
+          title: "Documented constant 'DEFAULT_TIMEOUT' is outdated",
+          explanation: "Constant 'DEFAULT_TIMEOUT' was updated from 5.0 to 10.0 in httpx/config.py, but documentation still states 5.0.",
+          evidence: [
+            {
+              evidence_id: "E1",
+              role: "code",
+              path: "httpx/config.py",
+              line_start: 3,
+              line_end: 3,
+              quote: "DEFAULT_TIMEOUT = 10.0  # previously 5.0",
+              source_kind: "ast_fact"
+            },
+            {
+              evidence_id: "E2",
+              role: "documentation",
+              path: "docs/quickstart.md",
+              line_start: 5,
+              line_end: 6,
+              quote: "By default, `DEFAULT_TIMEOUT` is 5.0 seconds on all network operations.\nYou can customize this value by passing `timeout` to the client.",
+              source_kind: "doc_span"
+            }
+          ],
+          confidence: 1.0,
+          verification: "deterministic",
+          provenance: "DETERMINISTIC",
+          suggested_action: "Update 'docs/quickstart.md:5' to reflect DEFAULT_TIMEOUT=10.0."
+        }
+      ],
+      warnings: [],
+      duration_ms: 75
+    }
+  },
   {
     id: "stale-default",
     prNumber: 42,
@@ -80,6 +166,7 @@ export const SCENARIOS: Scenario[] = [
     author: "alex-chen",
     branch: "feat/timeout-increase",
     targetBranch: "main",
+    category: "confirmed_drift",
     description: "Increases default network timeout from 30 to 60 seconds in client.py. Documentation was overlooked.",
     report: {
       schema_version: "1.0",

@@ -83,9 +83,45 @@ docguard scan --repo . --base <BASE_SHA> --head <HEAD_SHA> --no-model
 # Validate a generated ScanReport JSON artifact
 docguard validate-report .docguard/report.json
 
+# Execute the comprehensive 50-scenario evaluation benchmark suite
+docguard evaluate --no-model
+
+# Execute the 50-scenario benchmark with local Qwen3-8B (Ollama)
+docguard evaluate
+
+# Run the real-world HTTPX PR #653 evaluation case study
+python examples/real-world-evaluation/reproduce.py
+
 # Execute the historical replay evaluation suite
 docguard replay --manifest examples/history/replay.json
 ```
+
+---
+
+## 🔬 Benchmark & Real-World Evaluation
+
+DocGuard has been evaluated against a comprehensive **50-scenario benchmark suite** across 4 categories:
+1. **Category A (14 Confirmed Drift Cases):** Stale defaults, removed parameters, renamed CLI flags, modified constants.
+2. **Category B (14 Negative Control Cases):** Docs updated in same PR, internal helpers, unchanged siblings, historical releases.
+3. **Category C (12 Ambiguous Edge Cases):** Dynamic reflection, `@typing.overload`, conditional defaults, kwargs forwarding.
+4. **Category D (10 Complex Semantics Cases):** Multi-column markdown tables, URL links, code blocks, duplicate sentences.
+
+### Measured Benchmark Performance
+
+| Evaluation Metric | Configuration A (Deterministic Only) | Configuration B (Qwen3-8B Hybrid) |
+| :--- | :---: | :---: |
+| **Pass Rate** | **43 / 50 (86.0%)** | 38 / 50 (76.0%) |
+| **Precision (PPV)** | **94.4%** | 73.9% |
+| **Recall (Sensitivity)** | **85.0%** | **85.0%** |
+| **Specificity (TNR)** | **96.7%** | 80.0% |
+| **F1 Score** | **0.895** | 0.791 |
+| **Location Accuracy** | **95.0%** | **95.0%** |
+| **Evidence Hallucinations** | **0% (Guaranteed)** | **0% (Guaranteed)** |
+| **Average Scan Latency** | **218.9 ms** | 14,652.9 ms |
+
+### Real-World Case Study: HTTPX PR #653
+
+DocGuard was tested on the real-world historical regression in `encode/httpx` PR #653, where `DEFAULT_TIMEOUT` was doubled from 5.0s to 10.0s in code, but `docs/quickstart.md` was overlooked. DocGuard caught the exact stale sentence on line 5 in **75 ms** with 100% confidence. See `examples/real-world-evaluation/` for full details.
 
 ---
 

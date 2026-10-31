@@ -14,6 +14,7 @@ class FunctionSignature:
         parameters: list[dict[str, Any]],
         decorators: list[str],
         returns: str | None = None,
+        is_overload: bool = False,
     ) -> None:
         self.name = name
         self.qualified_name = qualified_name
@@ -22,14 +23,21 @@ class FunctionSignature:
         self.parameters = parameters
         self.decorators = decorators
         self.returns = returns
+        self.is_overload = is_overload
 
 
 class ModuleFacts:
     def __init__(self, path: str) -> None:
         self.path = path
         self.functions: dict[str, FunctionSignature] = {}
+        self.classes: dict[str, int] = {}  # qualified_name -> line
         self.constants: dict[str, tuple[str, int]] = {}  # name -> (normalized_value, line)
+        self.constant_param_links: dict[str, list[str]] = {}  # const_name -> [param_names]
         self.cli_flags: dict[str, tuple[str, int]] = {}  # flag -> (default_value, line)
+        self.aliases: dict[str, str] = {}  # alias_name -> original_name
+        self.all_exports: set[str] = set()
+        self.imports: set[str] = set()
+        self.dynamic_signals: list[tuple[str, str, int]] = []  # (symbol, reason, line)
         self.parse_warnings: list[str] = []
 
 
@@ -49,6 +57,8 @@ class ASTVisitor(ast.NodeVisitor):
         self.facts = ModuleFacts(path)
 
     def visit_ClassDef(self, node: ast.ClassDef) -> None:
+        qname = ".".join(self.scope_stack + [node.name])
+        self.facts.classes[qname] = node.lineno
         self.scope_stack.append(node.name)
         self.generic_visit(node)
         self.scope_stack.pop()
@@ -59,6 +69,16 @@ class ASTVisitor(ast.NodeVisitor):
     def visit_AsyncFunctionDef(self, node: ast.AsyncFunctionDef) -> None:
         self._record_function(node)
 
+    def visit_Import(self, node: ast.Import) -> None:
+        for alias in node.names:
+            self.facts.imports.add(alias.asname or alias.name)
+        self.generic_visit(node)
+
+    def visit_ImportFrom(self, node: ast.ImportFrom) -> None:
+        for alias in node.names:
+            self.facts.imports.add(alias.asname or alias.name)
+        self.generic_visit(node)
+
     def _record_function(self, node: ast.FunctionDef | ast.AsyncFunctionDef) -> None:
         qname_parts = self.scope_stack + [node.name]
         qualified_name = ".".join(qname_parts)
@@ -68,7 +88,6 @@ class ASTVisitor(ast.NodeVisitor):
         # Positional-only args
         posonly = getattr(node.args, "posonlyargs", [])
         num_defaults = len(node.args.defaults)
-        # Defaults apply from the right of posonlyargs + args
         all_regular = posonly + node.args.args
         default_offset = len(all_regular) - num_defaults
 
@@ -77,6 +96,12 @@ class ASTVisitor(ast.NodeVisitor):
             if idx >= default_offset:
                 def_node = node.args.defaults[idx - default_offset]
                 default_val = _unparse_node(def_node)
+                if isinstance(def_node, ast.Name):
+                    self.facts.constant_param_links.setdefault(def_node.id, []).append(arg.arg)
+                elif isinstance(def_node, ast.Call):
+                    self.facts.dynamic_signals.append(
+                        (node.name, "dynamic_default_call", node.lineno)
+                    )
             kind = "POSITIONAL_ONLY" if idx < len(posonly) else "POSITIONAL_OR_KEYWORD"
             params.append(
                 {
@@ -99,11 +124,14 @@ class ASTVisitor(ast.NodeVisitor):
 
         # Keyword-only args
         for arg, def_node in zip(node.args.kwonlyargs, node.args.kw_defaults, strict=False):
+            def_str = _unparse_node(def_node)
+            if isinstance(def_node, ast.Name):
+                self.facts.constant_param_links.setdefault(def_node.id, []).append(arg.arg)
             params.append(
                 {
                     "name": arg.arg,
                     "kind": "KEYWORD_ONLY",
-                    "default": _unparse_node(def_node),
+                    "default": def_str,
                     "annotation": _unparse_node(arg.annotation),
                 }
             )
@@ -119,7 +147,22 @@ class ASTVisitor(ast.NodeVisitor):
             )
 
         decorators = [_unparse_node(d) or "" for d in node.decorator_list]
+        is_overload = any("overload" in d for d in decorators)
         returns = _unparse_node(node.returns)
+
+        # Inspect body for conditional defaults or dynamic dispatch (getattr)
+        for stmt in node.body:
+            if isinstance(stmt, ast.If):
+                # if param is None: param = ...
+                if isinstance(stmt.test, ast.Compare):
+                    self.facts.dynamic_signals.append(
+                        (node.name, "conditional_default_body", stmt.lineno)
+                    )
+            elif isinstance(stmt, ast.Assign) and isinstance(stmt.value, ast.Call):
+                if isinstance(stmt.value.func, ast.Name) and stmt.value.func.id == "getattr":
+                    self.facts.dynamic_signals.append(
+                        (node.name, "dynamic_dispatch_getattr", stmt.lineno)
+                    )
 
         sig = FunctionSignature(
             name=node.name,
@@ -129,23 +172,34 @@ class ASTVisitor(ast.NodeVisitor):
             parameters=params,
             decorators=decorators,
             returns=returns,
+            is_overload=is_overload,
         )
-        self.facts.functions[qualified_name] = sig
+
+        # Only overwrite if not overload or no existing implementation
+        if qualified_name not in self.facts.functions or not is_overload:
+            self.facts.functions[qualified_name] = sig
 
         self.scope_stack.append(node.name)
         self.generic_visit(node)
         self.scope_stack.pop()
 
     def visit_Assign(self, node: ast.Assign) -> None:
-        # Module-level constant assignment
         if not self.scope_stack:
             for target in node.targets:
-                if isinstance(target, ast.Name) and target.id.isupper():
-                    val = _unparse_node(node.value)
-                    if val is not None:
-                        self.facts.constants[target.id] = (val, node.lineno)
+                if isinstance(target, ast.Name):
+                    if target.id.isupper():
+                        val = _unparse_node(node.value)
+                        if val is not None:
+                            self.facts.constants[target.id] = (val, node.lineno)
+                    elif target.id == "__all__":
+                        if isinstance(node.value, (ast.List, ast.Tuple, ast.Set)):
+                            for elt in node.value.elts:
+                                if isinstance(elt, ast.Constant) and isinstance(elt.value, str):
+                                    self.facts.all_exports.add(elt.value)
+                    elif isinstance(node.value, ast.Name):
+                        # old_connect = new_connect
+                        self.facts.aliases[target.id] = node.value.id
 
-        # Check for argparse add_argument calls
         self._check_argparse(node.value, node.lineno)
         self.generic_visit(node)
 
@@ -184,32 +238,17 @@ def compare_python_facts(
     after_source: str | None,
     change_id: str = "diff",
 ) -> list[CodeFact]:
-    """Compares before and after Python snapshots and emits CodeFact records."""
     facts: list[CodeFact] = []
 
     if before_source is None and after_source is None:
         return facts
 
     if before_source is None and after_source is not None:
-        # New file added
         after_facts = extract_python_module_facts(path, after_source)
-        for w in after_facts.parse_warnings:
-            facts.append(
-                CodeFact(
-                    fact_id=f"warn-{len(facts)+1}",
-                    language="python",
-                    path=path,
-                    kind="parse_warning",
-                    before=None,
-                    after=w,
-                    source_change_id=change_id,
-                    static_confidence="high",
-                )
-            )
         for qname, sig in after_facts.functions.items():
             facts.append(
                 CodeFact(
-                    fact_id=f"func-add-{len(facts)+1}",
+                    fact_id=f"func-add-{len(facts) + 1}",
                     language="python",
                     path=path,
                     qualified_name=qname,
@@ -224,12 +263,11 @@ def compare_python_facts(
         return facts
 
     if before_source is not None and after_source is None:
-        # File deleted
         before_facts = extract_python_module_facts(path, before_source)
         for qname, sig in before_facts.functions.items():
             facts.append(
                 CodeFact(
-                    fact_id=f"func-rem-{len(facts)+1}",
+                    fact_id=f"func-rem-{len(facts) + 1}",
                     language="python",
                     path=path,
                     qualified_name=qname,
@@ -243,7 +281,6 @@ def compare_python_facts(
             )
         return facts
 
-    # File modified
     assert before_source is not None and after_source is not None
     before_facts = extract_python_module_facts(path, before_source)
     after_facts = extract_python_module_facts(path, after_source)
@@ -251,23 +288,49 @@ def compare_python_facts(
     for w in after_facts.parse_warnings:
         facts.append(
             CodeFact(
-                fact_id=f"warn-{len(facts)+1}",
+                fact_id=f"warn-{len(facts) + 1}",
                 language="python",
                 path=path,
                 kind="parse_warning",
-                before=None,
                 after=w,
                 source_change_id=change_id,
                 static_confidence="high",
             )
         )
 
+    # Record dynamic signals as low-confidence / ambiguous facts
+    for sym, reason, line in after_facts.dynamic_signals:
+        facts.append(
+            CodeFact(
+                fact_id=f"dyn-{len(facts) + 1}",
+                language="python",
+                path=path,
+                symbol=sym,
+                kind="parse_warning",
+                after=f"Dynamic signal: {reason}",
+                line_after=line,
+                source_change_id=change_id,
+                static_confidence="low",
+                metadata={"dynamic": True, "reason": reason},
+            )
+        )
+
+    all_after_func_symbols = [f.name for f in after_facts.functions.values()]
+
     # 1. Compare functions
     for qname, before_sig in before_facts.functions.items():
         if qname not in after_facts.functions:
+            # Check if preserved by alias, export, or import
+            if (
+                before_sig.name in after_facts.aliases
+                or before_sig.name in after_facts.all_exports
+                or before_sig.name in after_facts.imports
+            ):
+                continue
+
             facts.append(
                 CodeFact(
-                    fact_id=f"func-rem-{len(facts)+1}",
+                    fact_id=f"func-rem-{len(facts) + 1}",
                     language="python",
                     path=path,
                     qualified_name=qname,
@@ -282,8 +345,8 @@ def compare_python_facts(
             continue
 
         after_sig = after_facts.functions[qname]
+        siblings = [s for s in all_after_func_symbols if s != after_sig.name]
 
-        # Map parameters by name
         before_params = {p["name"]: p for p in before_sig.parameters}
         after_params = {p["name"]: p for p in after_sig.parameters}
 
@@ -296,7 +359,7 @@ def compare_python_facts(
                 if b_def != a_def and (b_def is not None or a_def is not None):
                     facts.append(
                         CodeFact(
-                            fact_id=f"default-chg-{len(facts)+1}",
+                            fact_id=f"default-chg-{len(facts) + 1}",
                             language="python",
                             path=path,
                             qualified_name=qname,
@@ -309,6 +372,7 @@ def compare_python_facts(
                             line_after=after_sig.line_start,
                             source_change_id=change_id,
                             static_confidence="high",
+                            metadata={"sibling_symbols": siblings},
                         )
                     )
 
@@ -317,7 +381,7 @@ def compare_python_facts(
             if pname not in after_params:
                 facts.append(
                     CodeFact(
-                        fact_id=f"param-rem-{len(facts)+1}",
+                        fact_id=f"param-rem-{len(facts) + 1}",
                         language="python",
                         path=path,
                         qualified_name=qname,
@@ -329,6 +393,7 @@ def compare_python_facts(
                         line_after=after_sig.line_start,
                         source_change_id=change_id,
                         static_confidence="high",
+                        metadata={"sibling_symbols": siblings},
                     )
                 )
 
@@ -337,7 +402,7 @@ def compare_python_facts(
             if pname not in before_params:
                 facts.append(
                     CodeFact(
-                        fact_id=f"param-add-{len(facts)+1}",
+                        fact_id=f"param-add-{len(facts) + 1}",
                         language="python",
                         path=path,
                         qualified_name=qname,
@@ -352,19 +417,22 @@ def compare_python_facts(
                     )
                 )
 
-    # Added functions
-    for qname, after_sig in after_facts.functions.items():
-        if qname not in before_facts.functions:
+    # Compare classes
+    for qname, line in before_facts.classes.items():
+        if qname not in after_facts.classes:
+            cls_name = qname.split(".")[-1]
+            if cls_name in after_facts.aliases or cls_name in after_facts.all_exports:
+                continue
             facts.append(
                 CodeFact(
-                    fact_id=f"func-add-{len(facts)+1}",
+                    fact_id=f"cls-rem-{len(facts) + 1}",
                     language="python",
                     path=path,
                     qualified_name=qname,
-                    symbol=after_sig.name,
-                    kind="function_added",
-                    after=after_sig.name,
-                    line_after=after_sig.line_start,
+                    symbol=cls_name,
+                    kind="function_removed",
+                    before=cls_name,
+                    line_before=line,
                     source_change_id=change_id,
                     static_confidence="high",
                 )
@@ -375,9 +443,10 @@ def compare_python_facts(
         if cname in after_facts.constants:
             a_val, a_line = after_facts.constants[cname]
             if b_val != a_val:
+                linked = after_facts.constant_param_links.get(cname, [])
                 facts.append(
                     CodeFact(
-                        fact_id=f"const-chg-{len(facts)+1}",
+                        fact_id=f"const-chg-{len(facts) + 1}",
                         language="python",
                         path=path,
                         qualified_name=cname,
@@ -390,6 +459,7 @@ def compare_python_facts(
                         line_after=a_line,
                         source_change_id=change_id,
                         static_confidence="high",
+                        metadata={"linked_params": linked},
                     )
                 )
 
@@ -398,7 +468,7 @@ def compare_python_facts(
         if flag not in after_facts.cli_flags:
             facts.append(
                 CodeFact(
-                    fact_id=f"flag-chg-{len(facts)+1}",
+                    fact_id=f"flag-chg-{len(facts) + 1}",
                     language="python",
                     path=path,
                     symbol="argparse",
@@ -416,7 +486,7 @@ def compare_python_facts(
             if b_def != a_def:
                 facts.append(
                     CodeFact(
-                        fact_id=f"flag-chg-{len(facts)+1}",
+                        fact_id=f"flag-chg-{len(facts) + 1}",
                         language="python",
                         path=path,
                         symbol="argparse",

@@ -14,7 +14,7 @@ import {
 } from "lucide-react";
 
 export const PRAnalysisView: React.FC = () => {
-  const [selectedScenarioId, setSelectedScenarioId] = useState<string>("stale-default");
+  const [selectedScenarioId, setSelectedScenarioId] = useState<string>("rw-httpx-653");
   const [expandedFindingId, setExpandedFindingId] = useState<string | null>("DG-0001");
   const [statusFilter, setStatusFilter] = useState<string>("all");
   const [searchQuery, setSearchQuery] = useState<string>("");
@@ -76,7 +76,14 @@ export const PRAnalysisView: React.FC = () => {
                 }`}
               >
                 <div className="flex items-center justify-between text-xs mb-1">
-                  <span className="font-mono text-gray-400">PR #{s.prNumber}</span>
+                  <div className="flex items-center space-x-1.5">
+                    <span className="font-mono text-gray-400">PR #{s.prNumber}</span>
+                    {s.category === "real_world" && (
+                      <span className="text-[9px] font-mono px-1 py-0.2 rounded bg-amber-500/20 text-amber-300 border border-amber-500/30">
+                        REAL-WORLD
+                      </span>
+                    )}
+                  </div>
                   <span
                     className={`text-[10px] font-mono px-1.5 py-0.2 rounded ${
                       hasDrift
@@ -84,7 +91,7 @@ export const PRAnalysisView: React.FC = () => {
                         : "bg-emerald-500/20 text-emerald-400 border border-emerald-500/30"
                     }`}
                   >
-                    {hasDrift ? "DRIFT DETECTED" : "NO DRIFT"}
+                    {hasDrift ? "DRIFT" : "NO DRIFT"}
                   </span>
                 </div>
                 <div className="text-xs font-medium text-gray-200 truncate">{s.prTitle}</div>

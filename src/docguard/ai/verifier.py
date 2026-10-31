@@ -18,7 +18,7 @@ class SemanticModelVerifier:
         facts: Sequence[CodeFact],
         spans: Sequence[DocSpan],
         candidates: Sequence[CandidateLink],
-        existing_finding_keys: set[tuple[str, str, str]],
+        covered_doc_spans: set[tuple[str, int]],
     ) -> list[Finding]:
         fact_map = {f.fact_id: f for f in facts}
         span_map = {s.span_id: s for s in spans}
@@ -27,16 +27,20 @@ class SemanticModelVerifier:
 
         # Find candidates not covered by deterministic rules
         for link in candidates:
+            if link.score < 0.4:
+                continue
+
             fact = fact_map.get(link.code_fact_id)
             span = span_map.get(link.doc_span_id)
             if not fact or not span:
                 continue
 
+            # Skip spans already diagnosed by deterministic rules
+            if (span.path, span.line_start) in covered_doc_spans:
+                continue
+
             # Only verify behavioral or signature changes not already flagged
             rule_id = "PY-BEHAVIOR-006"
-            key = (rule_id, fact.fact_id, span.span_id)
-            if key in existing_finding_keys:
-                continue
 
             # Construct bounded evidence items
             code_summary = (
@@ -75,7 +79,7 @@ class SemanticModelVerifier:
             assessment = self.client.verify_bundle(bundle)
 
             if assessment.status in ("DRIFT", "POTENTIAL_DRIFT", "UNCERTAIN"):
-                finding_id = f"DG-AI-{len(semantic_findings)+1:03d}"
+                finding_id = f"DG-AI-{len(semantic_findings) + 1:03d}"
                 f_evidence = [
                     EvidenceRef(
                         evidence_id="E1",
