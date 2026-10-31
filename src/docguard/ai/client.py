@@ -1,9 +1,30 @@
 import json
 import os
+from pathlib import Path
 
 import httpx
 
 from docguard.ai.protocol import EvidenceBundle, ModelAssessment
+
+
+def _load_env_file() -> None:
+    """Loads key-value pairs from .env into os.environ if not already set."""
+    for candidate in (Path(".env"), Path("../.env")):
+        if candidate.is_file():
+            try:
+                for line in candidate.read_text(encoding="utf-8").splitlines():
+                    line = line.strip()
+                    if not line or line.startswith("#") or "=" not in line:
+                        continue
+                    k, v = line.split("=", 1)
+                    k, v = k.strip(), v.strip().strip("'\"")
+                    if k not in os.environ:
+                        os.environ[k] = v
+            except Exception:
+                pass
+
+
+_load_env_file()
 
 SYSTEM_PROMPT = """You are DocGuard's documentation-consistency verifier.
 You do not write documentation and do not infer facts outside the evidence.
