@@ -2,10 +2,10 @@ from pathlib import Path
 
 import pytest
 
-from docguard.git.diff import GitDiffService, parse_name_status_z, parse_unified_diff
-from docguard.git.errors import GitError
-from docguard.git.runner import GitRunner
-from docguard.git.snapshots import GitSnapshotService
+from docsentry.git.diff import GitDiffService, parse_name_status_z, parse_unified_diff
+from docsentry.git.errors import GitError
+from docsentry.git.runner import GitRunner
+from docsentry.git.snapshots import GitSnapshotService
 
 
 def test_parse_name_status_z() -> None:
@@ -44,7 +44,7 @@ def test_git_service_with_temp_repo(tmp_path: Path) -> None:
     # Initialize git repo in tmp_path
     runner.run(["init"])
     runner.run(["config", "user.name", "DocGuard Test"])
-    runner.run(["config", "user.email", "test@docguard.local"])
+    runner.run(["config", "user.email", "test@docsentry.local"])
 
     # Commit 1 (base)
     file1 = tmp_path / "client.py"

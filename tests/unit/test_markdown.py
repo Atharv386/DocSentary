@@ -1,4 +1,4 @@
-from docguard.extractors.markdown import MarkdownExtractor
+from docsentry.extractors.markdown import MarkdownExtractor
 
 
 def test_markdown_extractor_headings_and_paragraphs() -> None:

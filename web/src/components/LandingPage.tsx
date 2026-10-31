@@ -24,7 +24,7 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onEnterApp }) => {
             <div className="w-8 h-8 rounded-lg bg-emerald-500/10 border border-emerald-500/30 flex items-center justify-center text-emerald-400">
               <ShieldAlert className="w-5 h-5" />
             </div>
-            <span className="font-bold tracking-tight text-white text-lg">DocGuard</span>
+            <span className="font-bold tracking-tight text-white text-lg">DocSentry</span>
           </div>
 
           <nav className="hidden md:flex items-center space-x-8 text-sm text-gray-400">
@@ -62,7 +62,7 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onEnterApp }) => {
         </h1>
 
         <p className="text-lg text-gray-400 max-w-2xl mx-auto leading-relaxed">
-          DocGuard detects documentation drift in pull requests, connects outdated statements to the code changes behind them, and helps engineering teams keep documentation trustworthy.
+          DocSentry detects documentation drift in pull requests, connects outdated statements to the code changes behind them, and helps engineering teams keep documentation trustworthy.
         </p>
 
         <div className="flex flex-col sm:flex-row items-center justify-center gap-4 pt-4">
@@ -90,7 +90,7 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onEnterApp }) => {
                 <span className="w-2.5 h-2.5 rounded-full bg-red-500/80"></span>
                 <span className="w-2.5 h-2.5 rounded-full bg-amber-500/80"></span>
                 <span className="w-2.5 h-2.5 rounded-full bg-emerald-500/80"></span>
-                <span className="font-mono text-gray-400 ml-2">DocGuard PR Analysis #42</span>
+                <span className="font-mono text-gray-400 ml-2">DocSentry PR Analysis #42</span>
               </div>
               <span className="font-mono text-red-400 bg-red-500/10 border border-red-500/20 px-2 py-0.5 rounded text-[11px]">
                 1 Confirmed Drift
@@ -178,7 +178,7 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onEnterApp }) => {
               </div>
               <h3 className="text-base font-semibold text-white">Zero-Hallucination Proof</h3>
               <p className="text-xs text-gray-400 leading-relaxed">
-                DocGuard enforces a strict trust boundary. Every reported drift must bind directly to extracted AST facts and verified source lines.
+                DocSentry enforces a strict trust boundary. Every reported drift must bind directly to extracted AST facts and verified source lines.
               </p>
             </div>
           </div>
@@ -190,7 +190,7 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onEnterApp }) => {
         <div className="max-w-6xl mx-auto px-6 space-y-12">
           <div className="text-center space-y-3">
             <h2 className="text-xs font-mono uppercase tracking-wider text-emerald-400 font-semibold">Workflow</h2>
-            <p className="text-3xl font-bold text-white">How DocGuard Protects Your Repositories</p>
+            <p className="text-3xl font-bold text-white">How DocSentry Protects Your Repositories</p>
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
@@ -198,7 +198,7 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onEnterApp }) => {
               <span className="text-xs font-mono text-emerald-400 bg-emerald-500/10 px-2 py-0.5 rounded border border-emerald-500/20">Step 01</span>
               <h3 className="text-sm font-semibold text-white">PR Event Trigger</h3>
               <p className="text-xs text-gray-400 leading-relaxed">
-                Runs automatically on GitHub Pull Requests via GitHub Actions or locally with the <code className="text-gray-300">docguard scan</code> CLI.
+                Runs automatically on GitHub Pull Requests via GitHub Actions or locally with the <code className="text-gray-300">docsentry scan</code> CLI.
               </p>
             </div>
 
@@ -291,7 +291,7 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onEnterApp }) => {
           Keep your documentation as reliable as your code.
         </h2>
         <p className="text-gray-400 max-w-lg mx-auto text-sm">
-          Integrate DocGuard in under 5 minutes with our native GitHub Actions workflow and local CLI.
+          Integrate DocSentry in under 5 minutes with our native GitHub Actions workflow and local CLI.
         </p>
         <button
           onClick={onEnterApp}
@@ -304,7 +304,7 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onEnterApp }) => {
 
       {/* Footer */}
       <footer className="border-t border-brand-border/60 py-8 bg-brand-surface text-center text-xs text-gray-500 font-mono">
-        <p>DocGuard • Hacktoberfest 2026 Sonipat • Open Source under MIT License</p>
+        <p>DocSentry • Hacktoberfest 2026 Sonipat • Open Source under MIT License</p>
       </footer>
     </div>
   );

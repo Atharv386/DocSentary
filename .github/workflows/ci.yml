@@ -32,7 +32,7 @@ jobs:
         run: pytest -q
 
       - name: Benchmark Regression (Deterministic 50-Scenario Suite)
-        run: docguard evaluate --no-model
+        run: docsentry evaluate --no-model
 
       - name: Validate examples
-        run: docguard validate-report examples/expected/report.json
+        run: docsentry validate-report examples/expected/report.json

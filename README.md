@@ -1,12 +1,12 @@
 <div align="center">
 
-# DocGuard
+# DocSentry
 ### *Your code evolves. Your documentation should keep up.*
 
 [![CI](https://github.com/Atharv386/DocSentary/actions/workflows/ci.yml/badge.svg)](https://github.com/Atharv386/DocSentary/actions)
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
 [![Python: 3.12+](https://img.shields.io/badge/python-3.12%2B-blue.svg)](https://python.org)
-[![PR Analysis](https://img.shields.io/badge/GitHub%20Actions-PR%20Drift%20Detector-green.svg)](.github/workflows/docguard.yml)
+[![PR Analysis](https://img.shields.io/badge/GitHub%20Actions-PR%20Drift%20Detector-green.svg)](.github/workflows/docsentry.yml)
 
 **Catch documentation drift in pull requests before it reaches production.**
 
@@ -22,13 +22,13 @@ Documentation silently becomes incorrect as software evolves.
 
 A developer updates a parameter's default value (`timeout: int = 30` ➔ `60`), removes an obsolete argument, renames a CLI flag, or modifies configuration keys. The code gets merged, but the documentation is left unchanged. The result is documentation that looks trustworthy but actively misleads developers.
 
-Standard linters only verify markdown formatting and broken links. **DocGuard proves whether your documentation statements are still true after a code change.**
+Standard linters only verify markdown formatting and broken links. **DocSentry proves whether your documentation statements are still true after a code change.**
 
 ---
 
-## 🛡️ The DocGuard Guarantee: Zero-Hallucination Evidence
+## 🛡️ The DocSentry Guarantee: Zero-Hallucination Evidence
 
-Every single drift finding detected by DocGuard provides an immutable, verifiable link between the code change and the outdated sentence:
+Every single drift finding detected by DocSentry provides an immutable, verifiable link between the code change and the outdated sentence:
 
 ```
 [OUTDATED DOCUMENTATION]                                [ACTUAL CODE CHANGE]
@@ -75,32 +75,32 @@ pip install -e ".[dev]"
 
 ```bash
 # Scan between base commit and head commit
-docguard scan --repo . --base <BASE_SHA> --head <HEAD_SHA> --output-dir .docguard
+docsentry scan --repo . --base <BASE_SHA> --head <HEAD_SHA> --output-dir .docsentry
 
 # Run deterministic checks only (no API key needed)
-docguard scan --repo . --base <BASE_SHA> --head <HEAD_SHA> --no-model
+docsentry scan --repo . --base <BASE_SHA> --head <HEAD_SHA> --no-model
 
 # Validate a generated ScanReport JSON artifact
-docguard validate-report .docguard/report.json
+docsentry validate-report .docsentry/report.json
 
 # Execute the comprehensive 50-scenario evaluation benchmark suite
-docguard evaluate --no-model
+docsentry evaluate --no-model
 
 # Execute the 50-scenario benchmark with local Qwen3-8B (Ollama)
-docguard evaluate
+docsentry evaluate
 
 # Run the real-world HTTPX PR #653 evaluation case study
 python examples/real-world-evaluation/reproduce.py
 
 # Execute the historical replay evaluation suite
-docguard replay --manifest examples/history/replay.json
+docsentry replay --manifest examples/history/replay.json
 ```
 
 ---
 
 ## 🔬 Benchmark & Real-World Evaluation
 
-DocGuard has been evaluated against a comprehensive **50-scenario benchmark suite** across 4 categories:
+DocSentry has been evaluated against a comprehensive **50-scenario benchmark suite** across 4 categories:
 1. **Category A (14 Confirmed Drift Cases):** Stale defaults, removed parameters, renamed CLI flags, modified constants.
 2. **Category B (14 Negative Control Cases):** Docs updated in same PR, internal helpers, unchanged siblings, historical releases.
 3. **Category C (12 Ambiguous Edge Cases):** Dynamic reflection, `@typing.overload`, conditional defaults, kwargs forwarding.
@@ -122,16 +122,16 @@ DocGuard has been evaluated against a comprehensive **50-scenario benchmark suit
 
 ### Real-World Case Study: HTTPX PR #653 (Historical Reconstruction)
 
-DocGuard was evaluated on a verified historical reconstruction of `encode/httpx` PR #653, where `DEFAULT_TIMEOUT` was doubled from 5.0s to 10.0s in `httpx/config.py`, but `docs/quickstart.md` was overlooked. DocGuard caught the exact stale sentence on line 5 in **75 ms** with 100% confidence. See `examples/real-world-evaluation/` for full details.
+DocSentry was evaluated on a verified historical reconstruction of `encode/httpx` PR #653, where `DEFAULT_TIMEOUT` was doubled from 5.0s to 10.0s in `httpx/config.py`, but `docs/quickstart.md` was overlooked. DocSentry caught the exact stale sentence on line 5 in **75 ms** with 100% confidence. See `examples/real-world-evaluation/` for full details.
 
 ---
 
 ## 🤖 GitHub Actions Workflow
 
-Integrate DocGuard directly into your CI pipeline using `.github/workflows/docguard.yml`:
+Integrate DocSentry directly into your CI pipeline using `.github/workflows/docsentry.yml`:
 
 ```yaml
-name: DocGuard PR Analysis
+name: DocSentry PR Analysis
 on:
   pull_request:
     types: [opened, synchronize, reopened]
@@ -151,23 +151,23 @@ jobs:
         with:
           python-version: "3.12"
 
-      - name: Install DocGuard
+      - name: Install DocSentry
         run: pip install -e .
 
       - name: Run scan
         env:
           BASE_SHA: ${{ github.event.pull_request.base.sha }}
           HEAD_SHA: ${{ github.event.pull_request.head.sha }}
-          DOCGUARD_MODEL_API_KEY: ${{ secrets.DOCGUARD_MODEL_API_KEY }}
+          DOCSENTRY_MODEL_API_KEY: ${{ secrets.DOCSENTRY_MODEL_API_KEY || secrets.DOCGUARD_MODEL_API_KEY }}
         run: |
-          docguard scan --repo . --base "$BASE_SHA" --head "$HEAD_SHA" \
-            --output-dir artifacts/docguard
+          docsentry scan --repo . --base "$BASE_SHA" --head "$HEAD_SHA" \
+            --output-dir artifacts/docsentry
 
       - name: Publish Step Summary
         if: always()
         run: |
-          if [ -f artifacts/docguard/report.md ]; then
-            cat artifacts/docguard/report.md >> "$GITHUB_STEP_SUMMARY"
+          if [ -f artifacts/docsentry/report.md ]; then
+            cat artifacts/docsentry/report.md >> "$GITHUB_STEP_SUMMARY"
           fi
 ```
 
@@ -210,7 +210,7 @@ GitHub PR / CLI (base_sha, head_sha)
 
 ## 📊 Evaluation & Historical Replay
 
-DocGuard includes a validated evaluation dataset (`examples/history/replay.json`) containing 8 test scenarios:
+DocSentry includes a validated evaluation dataset (`examples/history/replay.json`) containing 8 test scenarios:
 
 1. **F-01 (stale-default)**: Default parameter change `30` ➔ `60` (`DRIFT`)
 2. **F-02 (parameter-added)**: New parameter `retries` added (`POTENTIAL_DRIFT`)
@@ -223,12 +223,12 @@ DocGuard includes a validated evaluation dataset (`examples/history/replay.json`
 
 Run the full replay evaluation with:
 ```bash
-docguard replay --manifest examples/history/replay.json
+docsentry replay --manifest examples/history/replay.json
 ```
 
 ---
 
-## ⚙️ Configuration (`docguard.yml`)
+## ⚙️ Configuration (`docsentry.yml`)
 
 ```yaml
 version: 1

@@ -1,3 +1,7 @@
-"""Package initialization for DocGuard."""
+"""Backward-compatibility shim for legacy docguard imports."""
 
-__version__ = "0.1.0"
+import sys
+
+import docsentry
+
+sys.modules[__name__] = docsentry

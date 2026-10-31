@@ -15,9 +15,9 @@
 
 ---
 
-## 2. DocGuard Pre-Merge Interception
+## 2. DocSentry Pre-Merge Interception
 
-DocGuard was evaluated against this exact historical scenario before the fix commit was authored.
+DocSentry was evaluated against this exact historical scenario before the fix commit was authored.
 
 ### Execution Command
 ```bash

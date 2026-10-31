@@ -26,7 +26,7 @@ export const App: React.FC = () => {
         {/* Top App Bar */}
         <header className="h-14 border-b border-brand-border bg-brand-surface/60 backdrop-blur px-6 flex items-center justify-between flex-shrink-0">
           <div className="flex items-center space-x-3 text-xs font-mono text-gray-400">
-            <span className="text-gray-200 font-medium">DocGuard</span>
+            <span className="text-gray-200 font-medium">DocSentry</span>
             <span>/</span>
             <span className="text-emerald-400 font-semibold uppercase">{currentTab}</span>
           </div>
@@ -116,7 +116,7 @@ export const App: React.FC = () => {
                 <div className="space-y-1">
                   <h3 className="text-sm font-semibold text-white">Model Configuration</h3>
                   <p className="text-xs text-gray-400">
-                    DocGuard uses deterministic rules first and queries open-weight model endpoints for ambiguous semantic behavior.
+                    DocSentry uses deterministic rules first and queries open-weight model endpoints for ambiguous semantic behavior.
                   </p>
                 </div>
                 <div className="grid grid-cols-2 gap-3 text-xs font-mono">

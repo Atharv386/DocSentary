@@ -1,0 +1,52 @@
+name: DocSentry PR Analysis
+on:
+  pull_request:
+    types: [opened, synchronize, reopened]
+
+permissions:
+  contents: read
+
+jobs:
+  analyze:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install DocSentry
+        run: pip install -e .
+
+      - name: Run scan
+        env:
+          BASE_SHA: ${{ github.event.pull_request.base.sha }}
+          HEAD_SHA: ${{ github.event.pull_request.head.sha }}
+          DOCSENTRY_MODEL_API_KEY: ${{ secrets.DOCSENTRY_MODEL_API_KEY || secrets.DOCGUARD_MODEL_API_KEY }}
+        run: |
+          if [ -z "$DOCSENTRY_MODEL_API_KEY" ]; then
+            echo "Model credential unavailable; running deterministic scan."
+            docsentry scan --repo . --base "$BASE_SHA" --head "$HEAD_SHA" \
+              --no-model --output-dir artifacts/docsentry
+          else
+            docsentry scan --repo . --base "$BASE_SHA" --head "$HEAD_SHA" \
+              --output-dir artifacts/docsentry
+          fi
+
+      - name: Add report to job summary
+        if: always()
+        run: |
+          if [ -f artifacts/docsentry/report.md ]; then
+            cat artifacts/docsentry/report.md >> "$GITHUB_STEP_SUMMARY"
+          fi
+
+      - name: Upload machine-readable report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: docsentry-report
+          path: artifacts/docsentry/
+          if-no-files-found: ignore

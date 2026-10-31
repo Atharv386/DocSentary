@@ -34,7 +34,7 @@ export const Sidebar: React.FC<SidebarProps> = ({ currentTab, setCurrentTab, onO
               <ShieldAlert className="w-5 h-5" />
             </div>
             <div>
-              <span className="font-semibold tracking-tight text-white text-base">DocGuard</span>
+              <span className="font-semibold tracking-tight text-white text-base">DocSentry</span>
               <span className="block text-[10px] text-gray-500 font-mono tracking-wider uppercase">Drift Reliability</span>
             </div>
           </div>

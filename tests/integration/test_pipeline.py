@@ -1,18 +1,18 @@
 from pathlib import Path
 
-from docguard import __version__
-from docguard.ai.client import ModelClient
-from docguard.ai.verifier import SemanticModelVerifier
-from docguard.contracts.scan import ScanContext
-from docguard.extractors.markdown import MarkdownExtractor
-from docguard.git.diff import GitDiffService
-from docguard.git.runner import GitRunner
-from docguard.git.snapshots import GitSnapshotService
-from docguard.mapping.candidates import CandidateMapper
-from docguard.pipeline import Dependencies, scan_repository
-from docguard.reporting.markdown_report import render_markdown_report
-from docguard.rules.engine import DeterministicRuleEngine
-from docguard.validation.evidence import EvidenceValidator
+from docsentry import __version__
+from docsentry.ai.client import ModelClient
+from docsentry.ai.verifier import SemanticModelVerifier
+from docsentry.contracts.scan import ScanContext
+from docsentry.extractors.markdown import MarkdownExtractor
+from docsentry.git.diff import GitDiffService
+from docsentry.git.runner import GitRunner
+from docsentry.git.snapshots import GitSnapshotService
+from docsentry.mapping.candidates import CandidateMapper
+from docsentry.pipeline import Dependencies, scan_repository
+from docsentry.reporting.markdown_report import render_markdown_report
+from docsentry.rules.engine import DeterministicRuleEngine
+from docsentry.validation.evidence import EvidenceValidator
 
 
 def test_end_to_end_drift_detection(tmp_path: Path) -> None:
@@ -20,7 +20,7 @@ def test_end_to_end_drift_detection(tmp_path: Path) -> None:
     runner = GitRunner(tmp_path)
     runner.run(["init"])
     runner.run(["config", "user.name", "DocGuard CI"])
-    runner.run(["config", "user.email", "ci@docguard.local"])
+    runner.run(["config", "user.email", "ci@docsentry.local"])
 
     # Base commit: client.py with timeout=30
     src_dir = tmp_path / "src"

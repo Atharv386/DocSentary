@@ -380,7 +380,7 @@ export const SCENARIOS: Scenario[] = [
     author: "rachel-lead",
     branch: "feat/retries-bump",
     targetBranch: "main",
-    description: "Both code constant and markdown guide were updated in the same PR. DocGuard verifies sync.",
+    description: "Both code constant and markdown guide were updated in the same PR. DocSentry verifies sync.",
     report: {
       schema_version: "1.0",
       scan_id: "scan-2026-10-31-004",

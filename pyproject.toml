@@ -1,12 +1,12 @@
 [project]
-name = "docguard"
+name = "docsentry"
 version = "0.1.0"
 description = "AI-powered documentation reliability and drift detection for software engineering teams."
 readme = "README.md"
 requires-python = ">=3.12"
 license = {text = "MIT"}
 authors = [
-    {name = "DocGuard Team"}
+    {name = "DocSentry Team"}
 ]
 dependencies = [
     "pydantic>=2,<3",
@@ -29,7 +29,8 @@ api = [
 ]
 
 [project.scripts]
-docguard = "docguard.cli:app"
+docsentry = "docsentry.cli:app"
+docguard = "docsentry.cli:app"
 
 [build-system]
 requires = ["setuptools>=61.0"]
@@ -51,4 +52,5 @@ select = ["E", "F", "I"]
 ignore = ["B008"]
 
 [tool.ruff.lint.per-file-ignores]
-"src/docguard/evaluation/dataset.py" = ["E501"]
+"src/docsentry/evaluation/dataset.py" = ["E501"]
+"src/docsentry/evaluation/dataset_semantic.py" = ["E501"]

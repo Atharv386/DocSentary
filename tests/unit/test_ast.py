@@ -1,4 +1,4 @@
-from docguard.extractors.python_ast import compare_python_facts, extract_python_module_facts
+from docsentry.extractors.python_ast import compare_python_facts, extract_python_module_facts
 
 
 def test_ast_default_changed() -> None:

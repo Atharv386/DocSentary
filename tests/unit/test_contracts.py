@@ -1,6 +1,6 @@
 from pathlib import Path
 
-from docguard.contracts import (
+from docsentry.contracts import (
     ChangedFile,
     CodeFact,
     DiffHunk,

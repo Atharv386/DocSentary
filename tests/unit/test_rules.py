@@ -1,12 +1,12 @@
-from docguard.contracts.code import CodeFact
-from docguard.contracts.docs import DocSpan
-from docguard.mapping.candidates import CandidateMapper
-from docguard.rules.config_flags import detect_config_flag_drift
-from docguard.rules.constants import detect_constant_drift
-from docguard.rules.defaults import detect_default_drift
-from docguard.rules.engine import DeterministicRuleEngine
-from docguard.rules.signatures import detect_signature_drift
-from docguard.rules.symbols import detect_symbol_drift
+from docsentry.contracts.code import CodeFact
+from docsentry.contracts.docs import DocSpan
+from docsentry.mapping.candidates import CandidateMapper
+from docsentry.rules.config_flags import detect_config_flag_drift
+from docsentry.rules.constants import detect_constant_drift
+from docsentry.rules.defaults import detect_default_drift
+from docsentry.rules.engine import DeterministicRuleEngine
+from docsentry.rules.signatures import detect_signature_drift
+from docsentry.rules.symbols import detect_symbol_drift
 
 
 def test_rule_default_drift_positive() -> None:

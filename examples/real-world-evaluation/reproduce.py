@@ -10,15 +10,15 @@ import shutil
 import sys
 from pathlib import Path
 
-from docguard.contracts.scan import ScanContext
-from docguard.extractors.markdown import MarkdownExtractor
-from docguard.git.diff import GitDiffService
-from docguard.git.runner import GitRunner
-from docguard.git.snapshots import GitSnapshotService
-from docguard.mapping.candidates import CandidateMapper
-from docguard.pipeline import Dependencies, scan_repository
-from docguard.rules.engine import DeterministicRuleEngine
-from docguard.validation.evidence import EvidenceValidator
+from docsentry.contracts.scan import ScanContext
+from docsentry.extractors.markdown import MarkdownExtractor
+from docsentry.git.diff import GitDiffService
+from docsentry.git.runner import GitRunner
+from docsentry.git.snapshots import GitSnapshotService
+from docsentry.mapping.candidates import CandidateMapper
+from docsentry.pipeline import Dependencies, scan_repository
+from docsentry.rules.engine import DeterministicRuleEngine
+from docsentry.validation.evidence import EvidenceValidator
 
 
 def setup_httpx_repo(repo_path: Path) -> tuple[str, str, str]:
@@ -29,7 +29,7 @@ def setup_httpx_repo(repo_path: Path) -> tuple[str, str, str]:
     git = GitRunner(repo_path)
     git.run(["init"])
     git.run(["config", "user.name", "DocGuard Evaluation"])
-    git.run(["config", "user.email", "eval@docguard.dev"])
+    git.run(["config", "user.email", "eval@docsentry.dev"])
 
     # Base commit (v0.12.0 state): DEFAULT_TIMEOUT = 5.0
     src_dir = repo_path / "httpx"
@@ -151,7 +151,7 @@ def run_evaluation() -> None:
             drift_found = True
 
     if drift_found:
-        print("\n✓ SUCCESS: DocGuard caught documentation drift in PR #653 before release!")
+        print("\n✓ SUCCESS: DocSentry caught documentation drift in PR #653 before release!")
     else:
         print("\n❌ FAILED: Drift was not detected.")
         sys.exit(1)

@@ -172,7 +172,7 @@ export const EvidenceComparison: React.FC<EvidenceComparisonProps> = ({ finding 
         </div>
 
         <div>
-          <div className="text-xs font-semibold text-gray-300 mb-1">Why DocGuard Flagged This</div>
+          <div className="text-xs font-semibold text-gray-300 mb-1">Why DocSentry Flagged This</div>
           <p className="text-sm text-gray-300 leading-relaxed">{finding.explanation}</p>
         </div>
 
