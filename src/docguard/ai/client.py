@@ -30,15 +30,16 @@ Return ONLY valid JSON matching this schema:
 
 
 class ModelClient:
-    """HTTP client for organizer-provided open-weight model endpoints."""
+    """HTTP client supporting Ollama and organizer-provided open-weight model endpoints."""
 
     def __init__(self) -> None:
         self.enabled = os.environ.get("DOCGUARD_MODEL_ENABLED", "true").lower() == "true"
-        self.base_url = os.environ.get("DOCGUARD_MODEL_BASE_URL", "").rstrip("/")
+        self.provider = os.environ.get("DOCGUARD_MODEL_PROVIDER", "ollama").lower()
+        self.base_url = os.environ.get("DOCGUARD_MODEL_BASE_URL", "http://localhost:11434").rstrip("/")
         self.api_key = os.environ.get("DOCGUARD_MODEL_API_KEY", "")
-        self.model_name = os.environ.get("DOCGUARD_MODEL_NAME", "open-weight-verifier")
-        timeout_val = os.environ.get("DOCGUARD_MODEL_TIMEOUT_SECONDS", "30")
-        self.timeout = float(timeout_val) if timeout_val.isdigit() else 30.0
+        self.model_name = os.environ.get("DOCGUARD_MODEL_NAME", "qwen3:8b")
+        timeout_val = os.environ.get("DOCGUARD_MODEL_TIMEOUT_SECONDS", "60")
+        self.timeout = float(timeout_val) if timeout_val.isdigit() else 60.0
 
     def is_configured(self) -> bool:
         return bool(self.enabled and self.base_url)
@@ -56,20 +57,43 @@ class ModelClient:
                 reasoning_type="insufficient_context",
             )
 
-        payload = {
-            "model": self.model_name,
-            "messages": [
-                {"role": "system", "content": SYSTEM_PROMPT},
-                {"role": "user", "content": bundle.model_dump_json()},
-            ],
-            "temperature": 0.0,
-        }
+        is_ollama_native = "11434" in self.base_url and not self.base_url.endswith("/v1")
+
+        if is_ollama_native:
+            # Native Ollama /api/chat with format: "json"
+            url = f"{self.base_url}/api/chat"
+            payload = {
+                "model": self.model_name,
+                "messages": [
+                    {"role": "system", "content": SYSTEM_PROMPT},
+                    {"role": "user", "content": bundle.model_dump_json()},
+                ],
+                "stream": False,
+                "format": "json",
+                "options": {"temperature": 0.0},
+            }
+        else:
+            # OpenAI-compatible /v1/chat/completions
+            endpoint = (
+                "/chat/completions"
+                if self.base_url.endswith("/v1")
+                else "/v1/chat/completions"
+            )
+            url = f"{self.base_url}{endpoint}"
+            payload = {
+                "model": self.model_name,
+                "messages": [
+                    {"role": "system", "content": SYSTEM_PROMPT},
+                    {"role": "user", "content": bundle.model_dump_json()},
+                ],
+                "temperature": 0.0,
+                "response_format": {"type": "json_object"},
+            }
 
         headers = {"Content-Type": "application/json"}
         if self.api_key:
             headers["Authorization"] = f"Bearer {self.api_key}"
 
-        url = f"{self.base_url}/chat/completions"
         try:
             with httpx.Client(timeout=self.timeout) as client:
                 res = client.post(url, json=payload, headers=headers)
@@ -88,7 +112,11 @@ class ModelClient:
                 data = res.json()
 
                 raw_content = ""
-                if "choices" in data and data["choices"]:
+                if "message" in data and "content" in data["message"]:
+                    # Native Ollama response
+                    raw_content = data["message"]["content"]
+                elif "choices" in data and data["choices"]:
+                    # OpenAI-compatible response
                     raw_content = data["choices"][0]["message"]["content"]
                 elif "response" in data:
                     raw_content = data["response"]
