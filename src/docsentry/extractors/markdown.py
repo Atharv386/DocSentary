@@ -52,7 +52,7 @@ def classify_claim(
         if "=" in text and not any(kw in text_lower for kw in ["default", "timeout is", "must"]):
             return "code_example"
 
-    # 5. Check if text asserts an active specification or default
+    # 5. Check if text asserts an active specification, default, or concrete behavioral guidance
     active_keywords = [
         "default",
         "defaults to",
@@ -71,6 +71,13 @@ def classify_claim(
         "options",
         "by default",
         "will raise",
+        "serialize",
+        "explicitly",
+        "to send",
+        "to configure",
+        "to enable",
+        "to disable",
+        "to override",
     ]
     if any(kw in text_lower for kw in active_keywords):
         return "active_assertion"

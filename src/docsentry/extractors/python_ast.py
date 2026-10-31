@@ -45,6 +45,8 @@ class ModuleFacts:
         self.aliases: dict[str, str] = {}  # alias_name -> original_name
         self.all_exports: set[str] = set()
         self.imports: set[str] = set()
+        # qualified_name -> (val, line)
+        self.class_attributes: dict[str, tuple[str | None, int]] = {}
         self.dynamic_signals: list[tuple[str, str, int]] = []  # (symbol, reason, line)
         self.parse_warnings: list[str] = []
 
@@ -231,13 +233,49 @@ class ASTVisitor(ast.NodeVisitor):
                     elif isinstance(node.value, ast.Name):
                         # old_connect = new_connect
                         self.facts.aliases[target.id] = node.value.id
+        else:
+            cls_qname = ".".join(self.scope_stack)
+            for target in node.targets:
+                if isinstance(target, ast.Name):
+                    attr_qname = f"{cls_qname}.{target.id}"
+                    val = _unparse_node(node.value)
+                    self.facts.class_attributes[attr_qname] = (val, node.lineno)
 
         self._check_argparse(node.value, node.lineno)
+        self._check_env_call(node.value, node.lineno)
+        self.generic_visit(node)
+
+    def visit_AnnAssign(self, node: ast.AnnAssign) -> None:
+        if isinstance(node.target, ast.Name):
+            val = _unparse_node(node.value)
+            if not self.scope_stack:
+                if node.target.id.isupper() and val is not None:
+                    self.facts.constants[node.target.id] = (val, node.lineno)
+            else:
+                cls_qname = ".".join(self.scope_stack)
+                attr_qname = f"{cls_qname}.{node.target.id}"
+                self.facts.class_attributes[attr_qname] = (val, node.lineno)
+        self._check_argparse(node.value, node.lineno)
+        self._check_env_call(node.value, node.lineno)
         self.generic_visit(node)
 
     def visit_Expr(self, node: ast.Expr) -> None:
         self._check_argparse(node.value, node.lineno)
+        self._check_env_call(node.value, node.lineno)
         self.generic_visit(node)
+
+    def _check_env_call(self, node: ast.AST | None, lineno: int) -> None:
+        if node is None:
+            return
+        for n in ast.walk(node):
+            if isinstance(n, ast.Call):
+                func_str = _unparse_node(n.func)
+                if func_str in ("os.environ.get", "os.getenv") and n.args:
+                    first_arg = n.args[0]
+                    if isinstance(first_arg, ast.Constant) and isinstance(first_arg.value, str):
+                        flag_name = first_arg.value
+                        def_val = _unparse_node(n.args[1]) if len(n.args) > 1 else "None"
+                        self.facts.cli_flags[flag_name] = (def_val or "None", lineno)
 
     def _check_argparse(self, node: ast.AST, lineno: int) -> None:
         if isinstance(node, ast.Call) and isinstance(node.func, ast.Attribute):
@@ -620,6 +658,50 @@ def compare_python_facts(
                         line_after=a_line,
                         source_change_id=change_id,
                         static_confidence="high",
+                    )
+                )
+
+    # 4. Compare Class Attributes
+    for attr_qname, (b_val, b_line) in before_facts.class_attributes.items():
+        attr_name = attr_qname.split(".")[-1]
+        cls_name = attr_qname.split(".")[0]
+        if attr_qname not in after_facts.class_attributes:
+            facts.append(
+                CodeFact(
+                    fact_id=f"attr-rem-{len(facts) + 1}",
+                    language="python",
+                    path=path,
+                    qualified_name=attr_qname,
+                    symbol=attr_qname,
+                    member=attr_name,
+                    kind="function_removed",
+                    before=b_val or attr_name,
+                    after=None,
+                    line_before=b_line,
+                    source_change_id=change_id,
+                    static_confidence="high",
+                    metadata={"class_name": cls_name, "attribute_name": attr_name},
+                )
+            )
+        else:
+            a_val, a_line = after_facts.class_attributes[attr_qname]
+            if b_val != a_val:
+                facts.append(
+                    CodeFact(
+                        fact_id=f"attr-chg-{len(facts) + 1}",
+                        language="python",
+                        path=path,
+                        qualified_name=attr_qname,
+                        symbol=attr_qname,
+                        member=attr_name,
+                        kind="default_changed",
+                        before=b_val or "None",
+                        after=a_val or "None",
+                        line_before=b_line,
+                        line_after=a_line,
+                        source_change_id=change_id,
+                        static_confidence="high",
+                        metadata={"class_name": cls_name, "attribute_name": attr_name},
                     )
                 )
 

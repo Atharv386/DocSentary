@@ -23,8 +23,10 @@ def detect_symbol_drift(
 
     span_text = doc_span.text
 
-    mentions_symbol = bool(
-        symbol in doc_span.inline_code or re.search(rf"\b{re.escape(symbol)}\b", span_text)
+    symbols_to_check = [s for s in [symbol, code_fact.member] if s]
+    mentions_symbol = any(
+        s in doc_span.inline_code or re.search(rf"\b{re.escape(s)}\b", span_text)
+        for s in symbols_to_check
     )
 
     if not mentions_symbol:

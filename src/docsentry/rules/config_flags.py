@@ -17,7 +17,7 @@ def detect_config_flag_drift(
     if code_fact.kind != "config_flag_changed":
         return None
 
-    flag = code_fact.member or ""
+    flag = code_fact.member or code_fact.symbol or ""
     if not flag:
         return None
 

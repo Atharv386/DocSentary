@@ -1,0 +1,192 @@
+{
+  "evaluation_metadata": {
+    "timestamp": "2026-10-31T21:23:53.448514+00:00",
+    "product": "DocSentry",
+    "benchmark_version": "v0.2.0",
+    "auditor_baseline_commit": "6dd5542",
+    "evaluation_scope": "Semantic Retrieval & Behavioral Reasoning Failure Analysis and Improvement"
+  },
+  "verified_25_case_benchmark": {
+    "baseline": {
+      "total_cases": 25,
+      "positive_cases": 11,
+      "negative_cases": 14,
+      "deterministic": {
+        "tp": 7,
+        "fp": 0,
+        "tn": 14,
+        "fn": 4,
+        "passed": 21,
+        "precision": 1.0,
+        "recall": 0.6364,
+        "specificity": 1.0,
+        "f1_score": 0.7778,
+        "conditional_location_accuracy": 1.0,
+        "conditional_code_attribution": 1.0
+      },
+      "selective_hybrid": {
+        "tp": 7,
+        "fp": 0,
+        "tn": 14,
+        "fn": 4,
+        "passed": 21,
+        "precision": 1.0,
+        "recall": 0.6364,
+        "specificity": 1.0,
+        "f1_score": 0.7778,
+        "conditional_location_accuracy": 1.0,
+        "conditional_code_attribution": 1.0
+      }
+    },
+    "improved_v0_2": {
+      "total_cases": 25,
+      "positive_cases": 11,
+      "negative_cases": 14,
+      "deterministic": {
+        "tp": 10,
+        "fp": 0,
+        "tn": 14,
+        "fn": 1,
+        "passed": 24,
+        "precision": 1.0,
+        "recall": 0.9091,
+        "specificity": 1.0,
+        "f1_score": 0.9524,
+        "conditional_location_accuracy": 1.0,
+        "conditional_code_attribution": 1.0
+      },
+      "selective_hybrid": {
+        "tp": 11,
+        "fp": 0,
+        "tn": 14,
+        "fn": 0,
+        "passed": 25,
+        "precision": 1.0,
+        "recall": 1.0,
+        "specificity": 1.0,
+        "f1_score": 1.0,
+        "conditional_location_accuracy": 1.0,
+        "conditional_code_attribution": 1.0,
+        "incremental_ai_detections": 1
+      }
+    }
+  },
+  "partitions_evaluation": {
+    "dev_and_val_partitions_15_cases": {
+      "repositories": [
+        "encode/httpx",
+        "pallets/click",
+        "fastapi/fastapi",
+        "psf/requests"
+      ],
+      "total_cases": 15,
+      "positive_cases": 6,
+      "negative_cases": 9,
+      "baseline_deterministic": {
+        "tp": 5,
+        "fp": 0,
+        "tn": 9,
+        "fn": 1,
+        "passed": 14,
+        "precision": 1.0,
+        "recall": 0.8333,
+        "specificity": 1.0,
+        "f1_score": 0.9091
+      },
+      "improved_selective_hybrid": {
+        "tp": 6,
+        "fp": 0,
+        "tn": 9,
+        "fn": 0,
+        "passed": 15,
+        "precision": 1.0,
+        "recall": 1.0,
+        "specificity": 1.0,
+        "f1_score": 1.0,
+        "incremental_win_case_id": "REAL-REQUESTS-01"
+      }
+    },
+    "original_held_out_test_partition_10_cases_historical_comparison": {
+      "repositories": [
+        "pallets/flask",
+        "pydantic/pydantic",
+        "axios/axios"
+      ],
+      "note": "Evaluated after failure analysis to confirm resolution of diagnosed extraction flaws; not claimed as untouched.",
+      "total_cases": 10,
+      "positive_cases": 5,
+      "negative_cases": 5,
+      "baseline_metrics": {
+        "tp": 2,
+        "fp": 0,
+        "tn": 5,
+        "fn": 3,
+        "passed": 7,
+        "precision": 1.0,
+        "recall": 0.4,
+        "specificity": 1.0,
+        "f1_score": 0.5714
+      },
+      "improved_metrics": {
+        "tp": 5,
+        "fp": 0,
+        "tn": 5,
+        "fn": 0,
+        "passed": 10,
+        "precision": 1.0,
+        "recall": 1.0,
+        "specificity": 1.0,
+        "f1_score": 1.0
+      }
+    },
+    "fresh_blind_test_partition_8_cases_unseen_repositories": {
+      "repositories": [
+        "urllib3/urllib3",
+        "marshmallow-code/marshmallow",
+        "aio-libs/aiohttp",
+        "encode/starlette"
+      ],
+      "total_cases": 8,
+      "positive_cases": 4,
+      "negative_cases": 4,
+      "frozen_implementation_results": {
+        "tp": 3,
+        "fp": 0,
+        "tn": 4,
+        "fn": 1,
+        "passed": 7,
+        "precision": 1.0,
+        "recall": 0.75,
+        "specificity": 1.0,
+        "f1_score": 0.8571,
+        "missed_case_id": "BLIND-URLLIB3-01",
+        "missed_reason": "Indirect terminology gap (code: DEFAULT_TIMEOUT vs doc: pool timeout) below minimum candidate threshold"
+      }
+    }
+  },
+  "failure_analysis_summary": {
+    "total_false_negatives_diagnosed": 4,
+    "classifications": {
+      "REAL-REQUESTS-01": {
+        "category": "Documentation claim classification & AI routing filter failure",
+        "stage": "Stage 4 (Doc Parsing) & Stage 8 (AI Routing)",
+        "fix": "Expanded imperative/procedural directive classification in MarkdownExtractor; allowed candidate links with score >= 5.0 to route to Qwen"
+      },
+      "REAL-PYDANTIC-01": {
+        "category": "Code fact extraction failure",
+        "stage": "Stage 2 (Python AST Extraction)",
+        "fix": "Added visit_AnnAssign and class-level attribute extraction in ASTVisitor"
+      },
+      "REAL-FLASK-01": {
+        "category": "Code fact extraction failure",
+        "stage": "Stage 2 (Python AST Extraction)",
+        "fix": "Removed scope_stack guard restricting assignments to module-level only, enabling class attribute deletion detection"
+      },
+      "REAL-FLASK-02": {
+        "category": "Code fact extraction failure",
+        "stage": "Stage 2 (Python AST Extraction)",
+        "fix": "Added _check_env_call in ASTVisitor to detect os.environ.get and os.getenv config keys"
+      }
+    }
+  }
+}
