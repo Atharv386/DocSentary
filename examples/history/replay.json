@@ -1,0 +1,84 @@
+{
+  "manifest_version": "1.0",
+  "project": "DocGuard Evaluation Suite",
+  "cases": [
+    {
+      "case_id": "F-01",
+      "name": "stale-default",
+      "description": "Function default parameter updated from 30 to 60, but documentation still states 30.",
+      "rule_id": "PY-DEFAULT-001",
+      "expected_status": "DRIFT",
+      "expected_severity": "high",
+      "code_file": "src/client.py",
+      "doc_file": "docs/config.md"
+    },
+    {
+      "case_id": "F-02",
+      "name": "parameter-added",
+      "description": "New parameter 'retries' added to function signature; documentation omits it.",
+      "rule_id": "PY-PARAM-002",
+      "expected_status": "POTENTIAL_DRIFT",
+      "expected_severity": "medium",
+      "code_file": "src/client.py",
+      "doc_file": "docs/api.md"
+    },
+    {
+      "case_id": "F-03",
+      "name": "removed-symbol",
+      "description": "Function 'old_login' removed; tutorial documentation still instructs users to call it.",
+      "rule_id": "PY-SYMBOL-003",
+      "expected_status": "POTENTIAL_DRIFT",
+      "expected_severity": "medium",
+      "code_file": "src/auth.py",
+      "doc_file": "docs/tutorial.md"
+    },
+    {
+      "case_id": "F-04",
+      "name": "renamed-flag",
+      "description": "CLI flag '--timeout' renamed to '--request-timeout'; configuration table still lists old flag.",
+      "rule_id": "PY-CONFIG-004",
+      "expected_status": "DRIFT",
+      "expected_severity": "high",
+      "code_file": "src/cli.py",
+      "doc_file": "docs/flags.md"
+    },
+    {
+      "case_id": "F-05",
+      "name": "no-doc-impact",
+      "description": "Internal refactoring and private variable rename with zero effect on public documentation.",
+      "expected_status": "NO_DRIFT",
+      "expected_findings": 0,
+      "code_file": "src/internal.py",
+      "doc_file": "docs/guide.md"
+    },
+    {
+      "case_id": "F-06",
+      "name": "docs-fixed-same-pr",
+      "description": "Code default and documentation both updated simultaneously within the same pull request.",
+      "expected_status": "NO_DRIFT",
+      "expected_findings": 0,
+      "code_file": "src/client.py",
+      "doc_file": "docs/config.md"
+    },
+    {
+      "case_id": "F-07",
+      "name": "ambiguous-runtime",
+      "description": "Dynamic attribute routing via getattr/runtime reflection with ambiguous static signals.",
+      "rule_id": "PY-BEHAVIOR-006",
+      "expected_status": "UNCERTAIN",
+      "expected_severity": "info",
+      "code_file": "src/dispatch.py",
+      "doc_file": "docs/runtime.md"
+    },
+    {
+      "case_id": "F-08",
+      "name": "historical-fix",
+      "description": "Historical evaluation: code changed in commit N, docs fixed in commit N+1. Pre-fix state detected as drift.",
+      "rule_id": "PY-DEFAULT-001",
+      "expected_status": "DRIFT",
+      "expected_severity": "high",
+      "code_file": "src/client.py",
+      "doc_file": "docs/config.md"
+    }
+  ]
+}
