@@ -20,8 +20,12 @@ class CodeFact(BaseModel):
         "config_flag_changed",
         "decorator_changed",
         "docstring_changed",
+        "behavior_changed",
+        "return_changed",
+        "exception_changed",
         "parse_warning",
     ]
+    category: Literal["syntactic", "behavioral"] = "syntactic"
     symbol: str | None = None
     member: str | None = None  # parameter, flag or constant
     before: str | None = None

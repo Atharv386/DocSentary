@@ -20,6 +20,8 @@ class EvidenceBundle(BaseModel):
     code_path: str
     code_before: str | None = None
     code_after: str | None = None
+    claim_type: str | None = None
+    heading_context: str | None = None
     evidence_items: list[EvidenceItem] = Field(default_factory=list)
 
 

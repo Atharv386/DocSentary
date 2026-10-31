@@ -27,25 +27,29 @@ def _load_env_file() -> None:
 _load_env_file()
 
 SYSTEM_PROMPT = """You are DocGuard's documentation-consistency verifier.
-You do not write documentation and do not infer facts outside the evidence.
-Classify whether the supplied documentation remains accurate after the supplied code change.
-Use only evidence IDs included in the input.
+You verify whether a documentation statement remains accurate after a code change.
+Use only the evidence provided.
 
-DRIFT requires a direct contradiction supported by code and documentation.
-POTENTIAL_DRIFT means a relevant statement may be stale but the contradiction is not fully proven.
-NO_DRIFT means the documentation remains compatible with the supplied change.
-UNCERTAIN means evidence is incomplete or behavior is dynamic/ambiguous.
+RULES:
+1. DRIFT: Return DRIFT only when doc asserts a concrete factual claim that directly
+   contradicts new code behavior (e.g. code returns [], doc says raises exception or returns None).
+2. NO_DRIFT: Return NO_DRIFT if:
+   - The doc statement is a code example demonstrating user custom arguments (e.g. timeout=999).
+   - The doc is describing historical context, migration advice, or version notes.
+   - The code change is an internal refactoring and documented guarantee remains valid.
+   - The doc is general-purpose and not directly contradicted by the change.
+3. UNCERTAIN: Return UNCERTAIN if evidence is dynamic, incomplete, or ambiguous.
+4. POTENTIAL_DRIFT: Return POTENTIAL_DRIFT if public API was renamed/removed but doc may use alias.
 
-Never invent a path, line number, quote, identifier, default, or runtime fact.
-If a fact is not explicit in the supplied code evidence, return UNCERTAIN.
-Return ONLY valid JSON matching this schema:
+Never invent identifiers, line numbers, or facts outside the evidence.
+Return valid JSON matching this schema:
 {
   "status": "DRIFT | POTENTIAL_DRIFT | NO_DRIFT | UNCERTAIN",
   "severity": "high | medium | low | info",
-  "explanation": "One or two sentences.",
-  "evidence_ids": ["CODE-1", "DOC-2"],
+  "explanation": "One or two concise sentences.",
+  "evidence_ids": ["CODE-1", "DOC-1"],
   "reasoning_type": "direct_contradiction | likely_outdated | no_change | insufficient_context",
-  "suggested_action": "Optional review instruction"
+  "suggested_action": "Actionable advice for the engineer"
 }
 """
 

@@ -15,6 +15,10 @@ class FunctionSignature:
         decorators: list[str],
         returns: str | None = None,
         is_overload: bool = False,
+        is_async: bool = False,
+        return_expressions: list[str] | None = None,
+        raised_exceptions: list[str] | None = None,
+        auth_required: bool = False,
     ) -> None:
         self.name = name
         self.qualified_name = qualified_name
@@ -24,6 +28,10 @@ class FunctionSignature:
         self.decorators = decorators
         self.returns = returns
         self.is_overload = is_overload
+        self.is_async = is_async
+        self.return_expressions = return_expressions or []
+        self.raised_exceptions = raised_exceptions or []
+        self.auth_required = auth_required
 
 
 class ModuleFacts:
@@ -150,7 +158,22 @@ class ASTVisitor(ast.NodeVisitor):
         is_overload = any("overload" in d for d in decorators)
         returns = _unparse_node(node.returns)
 
-        # Inspect body for conditional defaults or dynamic dispatch (getattr)
+        # Inspect body for conditional defaults, dynamic dispatch, returns, and raises
+        return_expressions: list[str] = []
+        raised_exceptions: list[str] = []
+        for n in ast.walk(node):
+            if isinstance(n, ast.Return) and n.value is not None:
+                # Track literal/data-structure returns or type constructors
+                if isinstance(n.value, (ast.Constant, ast.List, ast.Dict, ast.Tuple, ast.Set)):
+                    unp = _unparse_node(n.value)
+                    if unp and unp not in return_expressions:
+                        return_expressions.append(unp)
+            elif isinstance(n, ast.Raise) and n.exc is not None:
+                exc_node = n.exc.func if isinstance(n.exc, ast.Call) else n.exc
+                unp = _unparse_node(exc_node)
+                if unp and unp not in raised_exceptions:
+                    raised_exceptions.append(unp)
+
         for stmt in node.body:
             if isinstance(stmt, ast.If):
                 # if param is None: param = ...
@@ -164,6 +187,11 @@ class ASTVisitor(ast.NodeVisitor):
                         (node.name, "dynamic_dispatch_getattr", stmt.lineno)
                     )
 
+        auth_required = any(
+            any(kw in d.lower() for kw in ["auth", "login", "permission"]) for d in decorators
+        )
+        is_async = isinstance(node, ast.AsyncFunctionDef)
+
         sig = FunctionSignature(
             name=node.name,
             qualified_name=qualified_name,
@@ -173,6 +201,10 @@ class ASTVisitor(ast.NodeVisitor):
             decorators=decorators,
             returns=returns,
             is_overload=is_overload,
+            is_async=is_async,
+            return_expressions=return_expressions,
+            raised_exceptions=raised_exceptions,
+            auth_required=auth_required,
         )
 
         # Only overwrite if not overload or no existing implementation
@@ -416,6 +448,96 @@ def compare_python_facts(
                         static_confidence="high",
                     )
                 )
+
+        # Check return value changes
+        if before_sig.return_expressions != after_sig.return_expressions:
+            b_ret = ", ".join(before_sig.return_expressions)
+            a_ret = ", ".join(after_sig.return_expressions)
+            if b_ret != a_ret:
+                facts.append(
+                    CodeFact(
+                        fact_id=f"ret-chg-{len(facts) + 1}",
+                        language="python",
+                        path=path,
+                        qualified_name=qname,
+                        symbol=after_sig.name,
+                        member="return",
+                        kind="return_changed",
+                        category="behavioral",
+                        before=b_ret or "None",
+                        after=a_ret or "None",
+                        line_before=before_sig.line_start,
+                        line_after=after_sig.line_start,
+                        source_change_id=change_id,
+                        static_confidence="medium",
+                    )
+                )
+
+        # Check raised exception changes
+        if before_sig.raised_exceptions != after_sig.raised_exceptions:
+            b_exc = ", ".join(before_sig.raised_exceptions)
+            a_exc = ", ".join(after_sig.raised_exceptions)
+            if b_exc != a_exc:
+                facts.append(
+                    CodeFact(
+                        fact_id=f"exc-chg-{len(facts) + 1}",
+                        language="python",
+                        path=path,
+                        qualified_name=qname,
+                        symbol=after_sig.name,
+                        member="exception",
+                        kind="exception_changed",
+                        category="behavioral",
+                        before=b_exc or "None",
+                        after=a_exc or "None",
+                        line_before=before_sig.line_start,
+                        line_after=after_sig.line_start,
+                        source_change_id=change_id,
+                        static_confidence="medium",
+                    )
+                )
+
+        # Check auth requirement change
+        if before_sig.auth_required != after_sig.auth_required:
+            facts.append(
+                CodeFact(
+                    fact_id=f"auth-chg-{len(facts) + 1}",
+                    language="python",
+                    path=path,
+                    qualified_name=qname,
+                    symbol=after_sig.name,
+                    member="authentication",
+                    kind="behavior_changed",
+                    category="behavioral",
+                    before="unauthenticated" if not before_sig.auth_required else "authenticated",
+                    after="authenticated" if after_sig.auth_required else "unauthenticated",
+                    line_before=before_sig.line_start,
+                    line_after=after_sig.line_start,
+                    source_change_id=change_id,
+                    static_confidence="high",
+                )
+            )
+
+        # Check sync to async change
+        if before_sig.is_async != after_sig.is_async:
+            facts.append(
+                CodeFact(
+                    fact_id=f"async-chg-{len(facts) + 1}",
+                    language="python",
+                    path=path,
+                    qualified_name=qname,
+                    symbol=after_sig.name,
+                    member="async",
+                    kind="behavior_changed",
+                    category="behavioral",
+                    before="sync" if not before_sig.is_async else "async",
+                    after="async" if after_sig.is_async else "sync",
+                    line_before=before_sig.line_start,
+                    line_after=after_sig.line_start,
+                    source_change_id=change_id,
+                    static_confidence="high",
+                )
+            )
 
     # Compare classes
     for qname, line in before_facts.classes.items():

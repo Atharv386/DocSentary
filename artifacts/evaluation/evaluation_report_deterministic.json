@@ -1,20 +1,20 @@
 {
   "metrics": {
     "total_cases": 50,
-    "passed_cases": 43,
-    "precision": 0.9444,
-    "recall": 0.85,
+    "passed_cases": 44,
+    "precision": 0.9474,
+    "recall": 0.9,
     "specificity": 0.9667,
-    "f1_score": 0.8947,
+    "f1_score": 0.9231,
     "exact_location_accuracy": 0.95,
-    "evidence_accuracy": 0.4,
+    "evidence_accuracy": 0.42,
     "uncertain_rate": 0.04,
-    "average_latency_ms": 218.9,
+    "average_latency_ms": 187.9,
     "confusion_matrix": {
-      "true_positives": 17,
+      "true_positives": 18,
       "true_negatives": 29,
       "false_positives": 1,
-      "false_negatives": 3
+      "false_negatives": 2
     },
     "category_breakdown": {
       "confirmed_drift": {
@@ -29,8 +29,8 @@
       },
       "ambiguous_edge_case": {
         "total": 12,
-        "passed": 7,
-        "pass_rate_percent": 58.3
+        "passed": 8,
+        "pass_rate_percent": 66.7
       },
       "doc_semantics": {
         "total": 10,
@@ -54,7 +54,7 @@
       ],
       "exact_location_match": true,
       "evidence_valid": true,
-      "duration_ms": 244,
+      "duration_ms": 194,
       "notes": "Code defaults to 60, doc asserts 30 seconds without historical qualification."
     },
     {
@@ -71,7 +71,7 @@
       ],
       "exact_location_match": true,
       "evidence_valid": true,
-      "duration_ms": 236,
+      "duration_ms": 195,
       "notes": "Default host literal changed to '0.0.0.0', doc claims localhost."
     },
     {
@@ -88,7 +88,7 @@
       ],
       "exact_location_match": true,
       "evidence_valid": true,
-      "duration_ms": 218,
+      "duration_ms": 190,
       "notes": "Removed parameter is explicitly referenced in documentation."
     },
     {
@@ -105,7 +105,7 @@
       ],
       "exact_location_match": true,
       "evidence_valid": true,
-      "duration_ms": 214,
+      "duration_ms": 191,
       "notes": "cache_dir parameter was deleted entirely."
     },
     {
@@ -122,7 +122,7 @@
       ],
       "exact_location_match": true,
       "evidence_valid": true,
-      "duration_ms": 224,
+      "duration_ms": 194,
       "notes": "Symbol old_connect no longer exists in src/api.py."
     },
     {
@@ -139,7 +139,7 @@
       ],
       "exact_location_match": true,
       "evidence_valid": true,
-      "duration_ms": 227,
+      "duration_ms": 194,
       "notes": "LegacySession class deleted."
     },
     {
@@ -156,7 +156,7 @@
       ],
       "exact_location_match": true,
       "evidence_valid": true,
-      "duration_ms": 235,
+      "duration_ms": 200,
       "notes": "--verbose was removed from CLI options."
     },
     {
@@ -173,7 +173,7 @@
       ],
       "exact_location_match": true,
       "evidence_valid": true,
-      "duration_ms": 233,
+      "duration_ms": 188,
       "notes": "--timeout is no longer recognized by the CLI."
     },
     {
@@ -190,7 +190,7 @@
       ],
       "exact_location_match": true,
       "evidence_valid": true,
-      "duration_ms": 235,
+      "duration_ms": 189,
       "notes": "MAX_CONNECTIONS value updated in code, stale in docs."
     },
     {
@@ -207,7 +207,7 @@
       ],
       "exact_location_match": true,
       "evidence_valid": true,
-      "duration_ms": 226,
+      "duration_ms": 194,
       "notes": "DEFAULT_PORT updated to 9000 in code."
     },
     {
@@ -224,7 +224,7 @@
       ],
       "exact_location_match": true,
       "evidence_valid": true,
-      "duration_ms": 214,
+      "duration_ms": 192,
       "notes": "Client.fetch method default updated in code."
     },
     {
@@ -241,7 +241,7 @@
       ],
       "exact_location_match": true,
       "evidence_valid": true,
-      "duration_ms": 217,
+      "duration_ms": 190,
       "notes": "Keyword-only default flipped from True to False."
     },
     {
@@ -258,7 +258,7 @@
       ],
       "exact_location_match": true,
       "evidence_valid": true,
-      "duration_ms": 226,
+      "duration_ms": 221,
       "notes": "Old parameter 'query' removed."
     },
     {
@@ -275,7 +275,7 @@
       ],
       "exact_location_match": true,
       "evidence_valid": true,
-      "duration_ms": 225,
+      "duration_ms": 193,
       "notes": "Table cell still lists stale default 30."
     },
     {
@@ -289,7 +289,7 @@
       "actual_doc_lines": null,
       "exact_location_match": false,
       "evidence_valid": false,
-      "duration_ms": 219,
+      "duration_ms": 180,
       "notes": "Private helper change does not affect public documentation."
     },
     {
@@ -303,7 +303,7 @@
       "actual_doc_lines": null,
       "exact_location_match": false,
       "evidence_valid": false,
-      "duration_ms": 217,
+      "duration_ms": 178,
       "notes": "Internal variable rename has no public API impact."
     },
     {
@@ -317,7 +317,7 @@
       "actual_doc_lines": null,
       "exact_location_match": false,
       "evidence_valid": false,
-      "duration_ms": 217,
+      "duration_ms": 229,
       "notes": "Comment modifications do not alter AST facts."
     },
     {
@@ -331,7 +331,7 @@
       "actual_doc_lines": null,
       "exact_location_match": false,
       "evidence_valid": false,
-      "duration_ms": 217,
+      "duration_ms": 206,
       "notes": "Formatting change only; AST normalized defaults identical."
     },
     {
@@ -345,7 +345,7 @@
       "actual_doc_lines": null,
       "exact_location_match": false,
       "evidence_valid": false,
-      "duration_ms": 212,
+      "duration_ms": 199,
       "notes": "Test files are excluded or non-impacting on public API docs."
     },
     {
@@ -359,7 +359,7 @@
       "actual_doc_lines": null,
       "exact_location_match": false,
       "evidence_valid": false,
-      "duration_ms": 207,
+      "duration_ms": 187,
       "notes": "Documentation was correctly updated within the PR."
     },
     {
@@ -373,7 +373,7 @@
       "actual_doc_lines": null,
       "exact_location_match": false,
       "evidence_valid": false,
-      "duration_ms": 205,
+      "duration_ms": 180,
       "notes": "Documentation was kept in sync with parameter removal."
     },
     {
@@ -387,7 +387,7 @@
       "actual_doc_lines": null,
       "exact_location_match": false,
       "evidence_valid": false,
-      "duration_ms": 216,
+      "duration_ms": 183,
       "notes": "Adding an optional parameter with default does not break documented usage."
     },
     {
@@ -401,7 +401,7 @@
       "actual_doc_lines": null,
       "exact_location_match": false,
       "evidence_valid": false,
-      "duration_ms": 192,
+      "duration_ms": 161,
       "notes": "No code changes occurred."
     },
     {
@@ -415,7 +415,7 @@
       "actual_doc_lines": null,
       "exact_location_match": false,
       "evidence_valid": false,
-      "duration_ms": 219,
+      "duration_ms": 184,
       "notes": "Document mentions old value in explicit historical comparison context."
     },
     {
@@ -429,7 +429,7 @@
       "actual_doc_lines": null,
       "exact_location_match": false,
       "evidence_valid": false,
-      "duration_ms": 222,
+      "duration_ms": 182,
       "notes": "Historical qualifier suppresses false positive."
     },
     {
@@ -443,7 +443,7 @@
       "actual_doc_lines": null,
       "exact_location_match": false,
       "evidence_valid": false,
-      "duration_ms": 220,
+      "duration_ms": 184,
       "notes": "Doc is linked to cache(), which did not change its default."
     },
     {
@@ -457,7 +457,7 @@
       "actual_doc_lines": null,
       "exact_location_match": false,
       "evidence_valid": false,
-      "duration_ms": 218,
+      "duration_ms": 180,
       "notes": "Literal default value is identical (30)."
     },
     {
@@ -471,7 +471,7 @@
       "actual_doc_lines": null,
       "exact_location_match": false,
       "evidence_valid": false,
-      "duration_ms": 209,
+      "duration_ms": 178,
       "notes": "Docstring changes inside source code don't invalidate user documentation."
     },
     {
@@ -485,7 +485,7 @@
       "actual_doc_lines": null,
       "exact_location_match": false,
       "evidence_valid": false,
-      "duration_ms": 205,
+      "duration_ms": 184,
       "notes": "Compatibility alias preserves public function availability."
     },
     {
@@ -499,7 +499,7 @@
       "actual_doc_lines": null,
       "exact_location_match": false,
       "evidence_valid": false,
-      "duration_ms": 216,
+      "duration_ms": 194,
       "notes": "Symbol is still exposed at package level."
     },
     {
@@ -513,21 +513,24 @@
       "actual_doc_lines": null,
       "exact_location_match": false,
       "evidence_valid": false,
-      "duration_ms": 227,
+      "duration_ms": 177,
       "notes": "Adding a type overload declaration does not break existing documentation."
     },
     {
       "case_id": "C-04",
-      "passed": false,
+      "passed": true,
       "expected_status": "DRIFT",
-      "actual_status": "NO_DRIFT",
-      "actual_rule_id": null,
-      "actual_findings_count": 0,
-      "actual_doc_path": null,
-      "actual_doc_lines": null,
+      "actual_status": "DRIFT",
+      "actual_rule_id": "PY-CONST-005",
+      "actual_findings_count": 1,
+      "actual_doc_path": "docs/cfg.md",
+      "actual_doc_lines": [
+        2,
+        2
+      ],
       "exact_location_match": false,
-      "evidence_valid": false,
-      "duration_ms": 216,
+      "evidence_valid": true,
+      "duration_ms": 190,
       "notes": "DEFAULT_T changed from 30 to 60, making doc stale."
     },
     {
@@ -541,7 +544,7 @@
       "actual_doc_lines": null,
       "exact_location_match": false,
       "evidence_valid": false,
-      "duration_ms": 216,
+      "duration_ms": 184,
       "notes": "Dynamic expression default requires conservative evaluation or AI interpretation."
     },
     {
@@ -555,7 +558,7 @@
       "actual_doc_lines": null,
       "exact_location_match": false,
       "evidence_valid": false,
-      "duration_ms": 220,
+      "duration_ms": 179,
       "notes": "Subclass implementation preserves base signature and defaults."
     },
     {
@@ -569,7 +572,7 @@
       "actual_doc_lines": null,
       "exact_location_match": false,
       "evidence_valid": false,
-      "duration_ms": 221,
+      "duration_ms": 181,
       "notes": "Dynamic dispatch string manipulation cannot be proven false statically."
     },
     {
@@ -583,7 +586,7 @@
       "actual_doc_lines": null,
       "exact_location_match": false,
       "evidence_valid": false,
-      "duration_ms": 216,
+      "duration_ms": 176,
       "notes": "AST signature has timeout=None; body modification requires semantic interpretation."
     },
     {
@@ -597,7 +600,7 @@
       "actual_doc_lines": null,
       "exact_location_match": false,
       "evidence_valid": false,
-      "duration_ms": 207,
+      "duration_ms": 182,
       "notes": "Decorator semantics require behavioral interpretation."
     },
     {
@@ -614,7 +617,7 @@
       ],
       "exact_location_match": false,
       "evidence_valid": true,
-      "duration_ms": 216,
+      "duration_ms": 189,
       "notes": "Only admin.login changed; auth.md correctly references auth.login."
     },
     {
@@ -628,7 +631,7 @@
       "actual_doc_lines": null,
       "exact_location_match": false,
       "evidence_valid": false,
-      "duration_ms": 214,
+      "duration_ms": 180,
       "notes": "Adding a named option with default does not break arbitrary kwargs."
     },
     {
@@ -642,7 +645,7 @@
       "actual_doc_lines": null,
       "exact_location_match": false,
       "evidence_valid": false,
-      "duration_ms": 219,
+      "duration_ms": 178,
       "notes": "Function is still callable; deprecation is a semantic warning."
     },
     {
@@ -656,7 +659,7 @@
       "actual_doc_lines": null,
       "exact_location_match": false,
       "evidence_valid": false,
-      "duration_ms": 221,
+      "duration_ms": 183,
       "notes": "Migration guide explicitly documents both versions without stale claims."
     },
     {
@@ -670,7 +673,7 @@
       "actual_doc_lines": null,
       "exact_location_match": false,
       "evidence_valid": false,
-      "duration_ms": 219,
+      "duration_ms": 189,
       "notes": "Changelogs are historical by definition."
     },
     {
@@ -684,7 +687,7 @@
       "actual_doc_lines": null,
       "exact_location_match": false,
       "evidence_valid": false,
-      "duration_ms": 223,
+      "duration_ms": 182,
       "notes": "Example demonstrates passing an explicit custom value (999), not asserting a default."
     },
     {
@@ -701,7 +704,7 @@
       ],
       "exact_location_match": true,
       "evidence_valid": true,
-      "duration_ms": 239,
+      "duration_ms": 190,
       "notes": "Advanced section still contains stale default 30."
     },
     {
@@ -718,7 +721,7 @@
       ],
       "exact_location_match": true,
       "evidence_valid": true,
-      "duration_ms": 233,
+      "duration_ms": 191,
       "notes": "DocSpan must preserve full heading stack ['Core', 'Network', 'Client', 'Sockets']."
     },
     {
@@ -735,7 +738,7 @@
       ],
       "exact_location_match": true,
       "evidence_valid": true,
-      "duration_ms": 217,
+      "duration_ms": 190,
       "notes": "Table cell for timeout default is stale."
     },
     {
@@ -749,7 +752,7 @@
       "actual_doc_lines": null,
       "exact_location_match": false,
       "evidence_valid": false,
-      "duration_ms": 202,
+      "duration_ms": 184,
       "notes": "Number 30 refers to concurrent connections, not timeout."
     },
     {
@@ -766,7 +769,7 @@
       ],
       "exact_location_match": true,
       "evidence_valid": true,
-      "duration_ms": 218,
+      "duration_ms": 191,
       "notes": "Sentence-level splitting should isolate 'The default timeout is 30 seconds.'"
     },
     {
@@ -783,7 +786,7 @@
       ],
       "exact_location_match": true,
       "evidence_valid": true,
-      "duration_ms": 223,
+      "duration_ms": 193,
       "notes": "--timeout flag is removed even if wrapped in a markdown link."
     },
     {
@@ -797,7 +800,7 @@
       "actual_doc_lines": null,
       "exact_location_match": false,
       "evidence_valid": false,
-      "duration_ms": 192,
+      "duration_ms": 170,
       "notes": "No changes to connect; URL mention does not create false drift."
     }
   ]

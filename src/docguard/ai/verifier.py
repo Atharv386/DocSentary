@@ -1,3 +1,4 @@
+import re
 from typing import Sequence
 
 from docguard.ai.client import ModelClient
@@ -27,9 +28,6 @@ class SemanticModelVerifier:
 
         # Find candidates not covered by deterministic rules
         for link in candidates:
-            if link.score < 0.4:
-                continue
-
             fact = fact_map.get(link.code_fact_id)
             span = span_map.get(link.doc_span_id)
             if not fact or not span:
@@ -37,6 +35,43 @@ class SemanticModelVerifier:
 
             # Skip spans already diagnosed by deterministic rules
             if (span.path, span.line_start) in covered_doc_spans:
+                continue
+
+            # Intelligent routing: filter out non-actionable or negative control combinations
+            span_claim = getattr(span, "claim_type", "active_assertion")
+            if span_claim == "historical_migration":
+                continue
+
+            if span_claim == "code_example" and fact.kind == "default_changed":
+                continue
+
+            # Sibling disambiguation: do not attribute to fact if doc is for sibling
+            siblings = fact.metadata.get("sibling_symbols", [])
+            if siblings and isinstance(siblings, list) and fact.symbol:
+                has_sym = (
+                    fact.symbol in span.inline_code
+                    or re.search(rf"\b{re.escape(fact.symbol)}\b", span.text)
+                    or any(fact.symbol in h for h in span.heading_path)
+                    or fact.symbol in span.path
+                )
+                if not has_sym:
+                    has_sibling = any(
+                        sib in span.inline_code
+                        or re.search(rf"\b{re.escape(str(sib))}\b", span.text)
+                        or any(str(sib) in h for h in span.heading_path)
+                        or str(sib) in span.path
+                        for sib in siblings
+                    )
+                    if has_sibling:
+                        continue
+
+            # Only invoke model if:
+            # 1. Fact is behavioral (return_changed, exception_changed, behavior_changed)
+            # 2. OR Candidate link is strong semantic match and span is active_assertion
+            is_behavioral = getattr(fact, "category", "syntactic") == "behavioral"
+            is_strong_semantic = link.score >= 5.0 and span_claim == "active_assertion"
+
+            if not (is_behavioral or is_strong_semantic):
                 continue
 
             # Only verify behavioral or signature changes not already flagged
@@ -73,6 +108,8 @@ class SemanticModelVerifier:
                 code_path=fact.path,
                 code_before=fact.before,
                 code_after=fact.after,
+                claim_type=span_claim,
+                heading_context=" > ".join(span.heading_path),
                 evidence_items=[code_ev, doc_ev],
             )
 

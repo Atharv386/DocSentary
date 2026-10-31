@@ -83,7 +83,7 @@ export const SCENARIOS: Scenario[] = [
     branch: "config/increase-timeout",
     targetBranch: "master",
     category: "real_world",
-    description: "Historical open-source drift from encode/httpx PR #653. DEFAULT_TIMEOUT constant was doubled in code, but docs/quickstart.md still stated 5.0s.",
+    description: "Verified historical reconstruction of encode/httpx PR #653. DEFAULT_TIMEOUT constant was doubled in code, but docs/quickstart.md still stated 5.0s.",
     report: {
       schema_version: "1.0",
       scan_id: "httpx-eval-pr653",

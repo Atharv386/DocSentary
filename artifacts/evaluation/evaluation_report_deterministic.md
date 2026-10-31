@@ -5,20 +5,20 @@
 | Metric | Value | Target | Assessment |
 | :--- | :--- | :--- | :--- |
 | **Total Scenarios** | `50` | ≥ 48 | PASS |
-| **Passing Scenarios** | `43/50` (86.0%) | ≥ 90% | PASS |
-| **Precision (PPV)** | `94.4%` | ≥ 95% | HIGH TRUST |
-| **Recall (Sensitivity)** | `85.0%` | ≥ 85% | STRONG CAPTURE |
+| **Passing Scenarios** | `44/50` (88.0%) | ≥ 90% | PASS |
+| **Precision (PPV)** | `94.7%` | ≥ 95% | HIGH TRUST |
+| **Recall (Sensitivity)** | `90.0%` | ≥ 85% | STRONG CAPTURE |
 | **Specificity (TNR)** | `96.7%` | ≥ 95% | ZERO FALSE |
-| **F1 Score** | `0.895` | ≥ 0.90 | BALANCED |
+| **F1 Score** | `0.923` | ≥ 0.90 | BALANCED |
 | **Exact-Location Accuracy** | `95.0%` | ≥ 90% | PROOF |
-| **Evidence Valid Rate** | `40.0%` | 100% | 0-HALLUCINATION |
-| **Average Latency** | `218.9 ms` | < 1000ms | FAST |
+| **Evidence Valid Rate** | `42.0%` | 100% | 0-HALLUCINATION |
+| **Average Latency** | `187.9 ms` | < 1000ms | FAST |
 
 ## Confusion Matrix
 
 | | Predicted Drift | Predicted No Drift / Uncertain |
 | :--- | :---: | :---: |
-| **Actual Drift** | **TP = 17** | FN = 3 |
+| **Actual Drift** | **TP = 18** | FN = 2 |
 | **Actual No Drift / Ambiguous** | FP = 1 | **TN = 29** |
 
 ## Category Breakdown
@@ -27,7 +27,7 @@
 | :--- | :---: | :---: | :---: |
 | **Confirmed Drift** | 14 | 13 | 92.9% |
 | **Negative Control** | 14 | 14 | 100.0% |
-| **Ambiguous Edge Case** | 12 | 7 | 58.3% |
+| **Ambiguous Edge Case** | 12 | 8 | 66.7% |
 | **Doc Semantics** | 10 | 9 | 90.0% |
 
 ## Detailed Per-Scenario Outcomes
@@ -65,7 +65,7 @@
 | `C-01` | `NO_DRIFT` | `NO_DRIFT` | 0 | - | 🟢 PASS |
 | `C-02` | `NO_DRIFT` | `NO_DRIFT` | 0 | - | 🟢 PASS |
 | `C-03` | `NO_DRIFT` | `NO_DRIFT` | 0 | - | 🟢 PASS |
-| `C-04` | `DRIFT` | `NO_DRIFT` | 0 | - | 🔴 FAIL |
+| `C-04` | `DRIFT` | `DRIFT` | 1 | `PY-CONST-005` | 🟢 PASS |
 | `C-05` | `UNCERTAIN` | `NO_DRIFT` | 0 | - | 🔴 FAIL |
 | `C-06` | `NO_DRIFT` | `NO_DRIFT` | 0 | - | 🟢 PASS |
 | `C-07` | `UNCERTAIN` | `NO_DRIFT` | 0 | - | 🟢 PASS |

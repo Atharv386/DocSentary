@@ -1,4 +1,9 @@
-# Real-World Repository Case Study: HTTPX Documentation Drift Detection
+# Real-World Case Study: HTTPX Documentation Drift Detection (Historical Reconstruction)
+
+> **Evaluation Classification:** Verified Historical Reconstruction  
+> **Source Repository:** `encode/httpx` (Apache 2.0 / BSD)  
+> **Historical Artifacts:** Pull Request #653, Issue #678, Pull Request #682 (Fix commit)  
+> **Reconstruction Rationale:** The exact file contents and commit delta from `encode/httpx` were reconstructed into an isolated, reproducible Git test environment so that evaluators and CI pipelines can execute and verify the scan offline in under 100 milliseconds without cloning the entire multi-gigabyte git history of HTTPX.
 
 ## 1. Case Study Background
 

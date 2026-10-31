@@ -15,6 +15,12 @@ class DocSpan(BaseModel):
     inline_code: list[str] = Field(default_factory=list)
     links: list[str] = Field(default_factory=list)
     language: str | None = None
+    claim_type: Literal[
+        "active_assertion",
+        "code_example",
+        "historical_migration",
+        "general_description",
+    ] = "active_assertion"
 
 
 class CandidateLink(BaseModel):

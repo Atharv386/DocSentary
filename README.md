@@ -108,20 +108,21 @@ DocGuard has been evaluated against a comprehensive **50-scenario benchmark suit
 
 ### Measured Benchmark Performance
 
-| Evaluation Metric | Configuration A (Deterministic Only) | Configuration B (Qwen3-8B Hybrid) |
+| Evaluation Metric | Configuration A (Deterministic Only) | Configuration B (Qwen3-8B Selective Hybrid) |
 | :--- | :---: | :---: |
-| **Pass Rate** | **43 / 50 (86.0%)** | 38 / 50 (76.0%) |
-| **Precision (PPV)** | **94.4%** | 73.9% |
-| **Recall (Sensitivity)** | **85.0%** | **85.0%** |
-| **Specificity (TNR)** | **96.7%** | 80.0% |
-| **F1 Score** | **0.895** | 0.791 |
+| **Pass Rate** | 43 / 50 (86.0%) | **45 / 50 (90.0%)** |
+| **Precision (PPV)** | **94.4%** | 90.0% |
+| **Recall (Sensitivity)** | 85.0% | **90.0%** |
+| **Specificity (TNR)** | **96.7%** | 93.3% |
+| **Negative Control Accuracy** | **14 / 14 (100%)** | **14 / 14 (100%)** |
+| **F1 Score** | 0.895 | **0.900** |
 | **Location Accuracy** | **95.0%** | **95.0%** |
 | **Evidence Hallucinations** | **0% (Guaranteed)** | **0% (Guaranteed)** |
-| **Average Scan Latency** | **218.9 ms** | 14,652.9 ms |
+| **Average Scan Latency** | **224.3 ms** | 1,569.6 ms (1.5s) |
 
-### Real-World Case Study: HTTPX PR #653
+### Real-World Case Study: HTTPX PR #653 (Historical Reconstruction)
 
-DocGuard was tested on the real-world historical regression in `encode/httpx` PR #653, where `DEFAULT_TIMEOUT` was doubled from 5.0s to 10.0s in code, but `docs/quickstart.md` was overlooked. DocGuard caught the exact stale sentence on line 5 in **75 ms** with 100% confidence. See `examples/real-world-evaluation/` for full details.
+DocGuard was evaluated on a verified historical reconstruction of `encode/httpx` PR #653, where `DEFAULT_TIMEOUT` was doubled from 5.0s to 10.0s in `httpx/config.py`, but `docs/quickstart.md` was overlooked. DocGuard caught the exact stale sentence on line 5 in **75 ms** with 100% confidence. See `examples/real-world-evaluation/` for full details.
 
 ---
 

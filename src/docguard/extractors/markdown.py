@@ -1,11 +1,81 @@
 import re
-from typing import Any
+from typing import Any, Literal
 
 from markdown_it import MarkdownIt
 
 from docguard.contracts.docs import DocSpan
 
 SENTENCE_SPLIT_RE = re.compile(r"(?<=[.!?])\s+(?=[A-Z0-9`\"'])")
+
+
+def classify_claim(
+    block_type: str,
+    text: str,
+    heading_path: list[str],
+    path: str,
+) -> Literal["active_assertion", "code_example", "historical_migration", "general_description"]:
+    """Classifies a documentation span's semantic claim category."""
+    # 1. Fenced blocks are code examples
+    if block_type == "fence":
+        return "code_example"
+
+    # 2. Check path or headings for historical/changelog/migration
+    combined_headings = " ".join(heading_path).lower()
+    path_lower = path.lower()
+    if (
+        "changelog" in path_lower
+        or "history" in path_lower
+        or "migration" in path_lower
+        or "release" in path_lower
+        or "changelog" in combined_headings
+        or "migration" in combined_headings
+        or "deprecated" in combined_headings
+    ):
+        return "historical_migration"
+
+    # 3. Check text for historical phrases
+    text_lower = text.lower()
+    if (
+        "previously" in text_lower
+        or "formerly" in text_lower
+        or "prior to" in text_lower
+        or "in version" in text_lower
+        or "in v0." in text_lower
+        or "in v1." in text_lower
+        or "old behavior" in text_lower
+        or "deprecated in" in text_lower
+    ):
+        return "historical_migration"
+
+    # 4. Check if text is an illustrative code call / override
+    if text.startswith("client.") or text.startswith("api.") or "example" in combined_headings:
+        if "=" in text and not any(kw in text_lower for kw in ["default", "timeout is", "must"]):
+            return "code_example"
+
+    # 5. Check if text asserts an active specification or default
+    active_keywords = [
+        "default",
+        "defaults to",
+        "must be",
+        "required",
+        "returns",
+        "raises",
+        "accepts",
+        "parameter",
+        "flag",
+        "argument",
+        "config",
+        "timeout is",
+        "retry",
+        "retries",
+        "options",
+        "by default",
+        "will raise",
+    ]
+    if any(kw in text_lower for kw in active_keywords):
+        return "active_assertion"
+
+    return "general_description"
 
 
 def extract_inline_metadata(tokens: list[Any]) -> tuple[str, list[str], list[str]]:
@@ -84,6 +154,9 @@ class MarkdownExtractor:
                         raw_text=heading_text,
                         line_start=line_start,
                         line_end=line_end,
+                        claim_type=classify_claim(
+                            "heading", heading_text.strip(), heading_stack, path
+                        ),
                     )
                 )
 
@@ -134,6 +207,7 @@ class MarkdownExtractor:
                                 line_end=max(s_start_line, s_end_line),
                                 inline_code=s_inline,
                                 links=s_links,
+                                claim_type=classify_claim("paragraph", s, heading_stack, path),
                             )
                         )
                 else:
@@ -149,6 +223,9 @@ class MarkdownExtractor:
                             line_end=line_end,
                             inline_code=inline_code,
                             links=links,
+                            claim_type=classify_claim(
+                                "paragraph", text.strip(), heading_stack, path
+                            ),
                         )
                     )
 
@@ -170,6 +247,7 @@ class MarkdownExtractor:
                         line_start=line_start,
                         line_end=line_end,
                         language=lang,
+                        claim_type="code_example",
                     )
                 )
 
@@ -218,6 +296,7 @@ class MarkdownExtractor:
                             line_start=current_row_start,
                             line_end=current_row_end,
                             inline_code=current_row_inlines,
+                            claim_type=classify_claim("table_cell", row_text, heading_stack, path),
                         )
                     )
 

@@ -40,6 +40,11 @@ class CandidateMapper:
             fact_path = fact.path
             fact_tokens = tokenize_identifier(fact_symbol) | tokenize_identifier(fact_member)
 
+            linked_params = fact.metadata.get("linked_params", [])
+            if isinstance(linked_params, list):
+                for lp in linked_params:
+                    fact_tokens |= tokenize_identifier(str(lp))
+
             for span in spans:
                 score = 0.0
                 reasons: list[str] = []
@@ -59,12 +64,18 @@ class CandidateMapper:
                     reasons.append("exact_unqualified_symbol_match")
 
                 # 3. Exact parameter or flag match
-                if fact_member and (
-                    fact_member in span.inline_code
-                    or re.search(rf"\b{re.escape(fact_member)}\b", span_text)
-                ):
-                    score += 6.0
-                    reasons.append("exact_parameter_or_flag_match")
+                params_to_check = [fact_member] if fact_member else []
+                if isinstance(linked_params, list):
+                    params_to_check.extend([str(p) for p in linked_params])
+
+                for p_check in params_to_check:
+                    if p_check and (
+                        p_check in span.inline_code
+                        or re.search(rf"\b{re.escape(p_check)}\b", span_text)
+                    ):
+                        score += 6.0
+                        reasons.append("exact_parameter_or_flag_match")
+                        break
 
                 # 4. Source path link match
                 for link in span.links:
@@ -92,6 +103,35 @@ class CandidateMapper:
                     if re.search(rf"\b{re.escape(str(fact.before))}\b", span_text):
                         score += 1.0
                         reasons.append("related_constant_or_value_match")
+
+                # 8. Behavioral semantic keyword match
+                span_lower = span_text.lower()
+                if fact.kind == "return_changed" and any(
+                    w in span_lower for w in ["return", "returns", "empty", "result"]
+                ):
+                    score += 5.0
+                    reasons.append("return_semantic_match")
+                elif fact.kind == "exception_changed" and any(
+                    w in span_lower for w in ["raise", "raises", "exception", "error"]
+                ):
+                    score += 5.0
+                    reasons.append("exception_semantic_match")
+                elif fact.kind == "behavior_changed" and any(
+                    w in span_lower for w in ["auth", "login", "async", "await", "sync"]
+                ):
+                    score += 5.0
+                    reasons.append("behavior_semantic_match")
+
+                # Adjust score based on claim type
+                if getattr(span, "claim_type", "active_assertion") == "historical_migration":
+                    # Historical/changelog entries are low relevance for current drift
+                    score = max(0.0, score - 6.0)
+                elif (
+                    getattr(span, "claim_type", "active_assertion") == "code_example"
+                    and fact.kind == "default_changed"
+                ):
+                    # Code examples with explicit arguments do not assert defaults
+                    score = max(0.0, score - 5.0)
 
                 if score >= self.min_score:
                     scored_spans.append((score, reasons, span))

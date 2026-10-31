@@ -35,6 +35,9 @@ def normalize_literal(val: str | None) -> str:
 
 
 def is_historical_context(doc_span: DocSpan) -> bool:
+    if getattr(doc_span, "claim_type", "") == "historical_migration":
+        return True
+
     # 1. Check filename
     doc_file_name = Path(doc_span.path).name.lower()
     if doc_file_name in HISTORICAL_DOC_NAMES:

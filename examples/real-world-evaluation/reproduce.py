@@ -39,9 +39,7 @@ def setup_httpx_repo(repo_path: Path) -> tuple[str, str, str]:
 
     (src_dir / "__init__.py").write_text('__version__ = "0.12.0"\n', encoding="utf-8")
     (src_dir / "config.py").write_text(
-        '"""HTTPX Configuration options."""\n\n'
-        "DEFAULT_TIMEOUT = 5.0\n"
-        "DEFAULT_MAX_REDIRECTS = 20\n",
+        '"""HTTPX Configuration options."""\n\nDEFAULT_TIMEOUT = 5.0\nDEFAULT_MAX_REDIRECTS = 20\n',
         encoding="utf-8",
     )
     (src_dir / "client.py").write_text(
