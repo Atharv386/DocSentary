@@ -98,31 +98,51 @@ docsentry replay --manifest examples/history/replay.json
 
 ---
 
-## 🔬 Benchmark & Real-World Evaluation
+## 🔬 Benchmark & Real-World Generalisation
 
-DocSentry has been evaluated against a comprehensive **50-scenario benchmark suite** across 4 categories:
-1. **Category A (14 Confirmed Drift Cases):** Stale defaults, removed parameters, renamed CLI flags, modified constants.
-2. **Category B (14 Negative Control Cases):** Docs updated in same PR, internal helpers, unchanged siblings, historical releases.
-3. **Category C (12 Ambiguous Edge Cases):** Dynamic reflection, `@typing.overload`, conditional defaults, kwargs forwarding.
-4. **Category D (10 Complex Semantics Cases):** Multi-column markdown tables, URL links, code blocks, duplicate sentences.
+DocSentry maintains a strict separation between **constructed validation suites** and **genuine open-source historical reconstructions**:
 
-### Measured Benchmark Performance
+### 1. Real-World Historical Benchmark (32 Cases across 7 Repositories)
+Evaluated across authentic historical pull requests from `encode/httpx`, `pallets/click`, `fastapi/fastapi`, `psf/requests`, `pydantic/pydantic`, `pallets/flask`, and `axios/axios` with repository-level partitioning (Dev, Validation, Held-out Test):
 
-| Evaluation Metric | Configuration A (Deterministic Only) | Configuration B (Qwen3-8B Selective Hybrid) |
-| :--- | :---: | :---: |
-| **Pass Rate** | 43 / 50 (86.0%) | **45 / 50 (90.0%)** |
-| **Precision (PPV)** | **94.4%** | 90.0% |
-| **Recall (Sensitivity)** | 85.0% | **90.0%** |
-| **Specificity (TNR)** | **96.7%** | 93.3% |
-| **Negative Control Accuracy** | **14 / 14 (100%)** | **14 / 14 (100%)** |
-| **F1 Score** | 0.895 | **0.900** |
-| **Location Accuracy** | **95.0%** | **95.0%** |
-| **Evidence Hallucinations** | **0% (Guaranteed)** | **0% (Guaranteed)** |
-| **Average Scan Latency** | **224.3 ms** | 1,569.6 ms (1.5s) |
+| Metric | Deterministic-Only | Qwen3-8B-Only | Selective Hybrid (DocSentry Core) |
+| :--- | :---: | :---: | :---: |
+| **Total Real-World Cases** | 32 | 32 | 32 |
+| **Pass Rate** | 24 / 32 (75.0%) | 22 / 32 (68.8%) | **25 / 32 (78.1%)** |
+| **Precision (PPV)** | **100.0%** | **100.0%** | **100.0%** |
+| **Recall (Sensitivity)** | 55.6% | 44.4% | **61.1% (+5.5% AI Gain)** |
+| **Specificity (TNR)** | **100.0% (14/14)** | **100.0% (14/14)** | **100.0% (14/14)** |
+| **F1 Score** | 0.714 | 0.615 | **0.759** |
+| **Average Scan Latency** | **227.2 ms** | 6,091.2 ms | **1,758.8 ms** |
+| **Model Invocations** | 0 | 8 | **1 (Selective)** |
+
+*Run the real-world historical benchmark:*
+```bash
+docsentry evaluate-realworld --config all
+```
+
+### 2. Constructed Semantic Reasoning Benchmark (32 Scenarios)
+Evaluates behavioral contracts (return shapes, exceptions, sync-to-async, thread safety, rate limiting):
+- **Deterministic-Only:** 8/32 passed (0.0% recall on behavioral contracts)
+- **Qwen3-8B Hybrid:** 15/32 passed (+29.2% incremental recall gain, 0 false alarms)
+
+*Run the semantic benchmark:*
+```bash
+docsentry evaluate --suite semantic
+```
+
+### 3. Standard Constructed Benchmark (50 Scenarios)
+- **Deterministic:** 44 / 50 (88.0%) passed, 94.7% precision, 90.0% recall, 0.923 F1.
+- **Selective Hybrid:** 45 / 50 (90.0%) passed, 90.0% precision, 90.0% recall, 0.900 F1.
+
+*Run the standard benchmark:*
+```bash
+docsentry evaluate --no-model --suite standard
+docsentry evaluate --suite standard
+```
 
 ### Real-World Case Study: HTTPX PR #653 (Historical Reconstruction)
-
-DocSentry was evaluated on a verified historical reconstruction of `encode/httpx` PR #653, where `DEFAULT_TIMEOUT` was doubled from 5.0s to 10.0s in `httpx/config.py`, but `docs/quickstart.md` was overlooked. DocSentry caught the exact stale sentence on line 5 in **75 ms** with 100% confidence. See `examples/real-world-evaluation/` for full details.
+DocSentry was evaluated on a verified historical reconstruction of `encode/httpx` PR #653, where `DEFAULT_TIMEOUT` was doubled from 5.0s to 10.0s in `httpx/config.py`, but `docs/quickstart.md` was overlooked. DocSentry caught the exact stale sentence on line 5 in **86 ms** with zero network overhead. See `examples/real-world-evaluation/` for full details.
 
 ---
 

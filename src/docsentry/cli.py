@@ -254,6 +254,72 @@ def evaluate_command(
     console.print(f"Reports saved to [cyan]{output_dir}[/cyan]")
 
 
+@app.command(name="evaluate-realworld")
+def evaluate_realworld_command(
+    output_dir: Path = typer.Option(
+        Path("artifacts/validation"),
+        "--output-dir",
+        "-o",
+        help="Directory to save real-world evaluation reports.",
+    ),
+    split: str = typer.Option(
+        "all",
+        "--split",
+        help="Repository split partition ('dev', 'val', 'test', 'all').",
+    ),
+    config: str = typer.Option(
+        "all",
+        "--config",
+        "-c",
+        help="Configurations to evaluate ('deterministic', 'qwen', 'hybrid', 'all').",
+    ),
+) -> None:
+    """Execute the multi-configuration real-world historical benchmark suite."""
+    from docsentry.evaluation.historical_runner import (
+        HistoricalBenchmarkRunner,
+        export_historical_benchmark_results,
+    )
+
+    configs_to_run = []
+    if config.lower() in ("deterministic", "all"):
+        configs_to_run.append("deterministic")
+    if config.lower() in ("qwen", "qwen3_8b_only", "all"):
+        configs_to_run.append("qwen3_8b_only")
+    if config.lower() in ("hybrid", "selective_hybrid", "all"):
+        configs_to_run.append("selective_hybrid")
+
+    runner = HistoricalBenchmarkRunner(split=split)
+    console.print(
+        f"[bold green]DocSentry Real-World Benchmark[/bold green]: Running {len(runner.cases)} "
+        f"verified cases across repositories (split=[cyan]{split}[/cyan], "
+        f"configs=[cyan]{configs_to_run}[/cyan])..."
+    )
+
+    metrics_map = {}
+    all_results = {}
+
+    for cfg_name in configs_to_run:
+        console.print(f"Executing configuration: [bold cyan]{cfg_name}[/bold cyan]...")
+        m, res = runner.run_suite(configuration=cfg_name)  # type: ignore
+        metrics_map[cfg_name] = m
+        all_results[cfg_name] = res
+
+        p_str = f"{m.precision * 100:.1f}%" if m.precision is not None else "N/A"
+        r_str = f"{m.recall * 100:.1f}%" if m.recall is not None else "N/A"
+        f1_str = f"{m.f1_score:.3f}" if m.f1_score is not None else "N/A"
+        console.print(
+            f"  ✓ {cfg_name}: {m.passed_cases}/{m.total_cases} passed | "
+            f"Precision: [cyan]{p_str}[/cyan] | Recall: [cyan]{r_str}[/cyan] | "
+            f"F1: [cyan]{f1_str}[/cyan] | Latency: [cyan]{m.average_latency_ms}ms[/cyan]"
+        )
+
+    export_historical_benchmark_results(metrics_map, all_results, output_dir)
+    console.print(
+        f"[bold green]✓ Benchmark reports and machine-readable artifacts saved to:[/bold green] "
+        f"[cyan]{output_dir}[/cyan]"
+    )
+
+
 @app.command(name="replay")
 def replay_command(
     manifest: Path = typer.Option(

@@ -1,9 +1,9 @@
 {
   "schema_version": "1.0",
   "scan_id": "httpx-eval-pr653",
-  "base_sha": "5c1a6432c4b0552f01ba7e198471bf17765638ea",
-  "head_sha": "35f713468ea82664d455c9f98279ca17ffea3221",
-  "merge_base_sha": "5c1a6432c4b0552f01ba7e198471bf17765638ea",
+  "base_sha": "5ec34d7b9e00525b484a6f3240676ab2d78be8f7",
+  "head_sha": "eac7d9ff060af2b1629c049e7969f220671f9d40",
+  "merge_base_sha": "5ec34d7b9e00525b484a6f3240676ab2d78be8f7",
   "tool_version": "0.1.0",
   "model_id": null,
   "summary": {
@@ -75,5 +75,5 @@
     }
   ],
   "warnings": [],
-  "duration_ms": 86
+  "duration_ms": 78
 }

@@ -1,0 +1,105 @@
+{
+  "deterministic": {
+    "configuration": "deterministic",
+    "total_cases": 32,
+    "passed_cases": 24,
+    "precision": 1.0,
+    "recall": 0.5556,
+    "specificity": 1.0,
+    "f1_score": 0.7143,
+    "exact_location_accuracy": 0.5556,
+    "code_attribution_accuracy": 0.5556,
+    "evidence_accuracy": 1.0,
+    "average_latency_ms": 213.3,
+    "total_model_invocations": 0,
+    "confusion_matrix": {
+      "true_positives": 10,
+      "true_negatives": 14,
+      "false_positives": 0,
+      "false_negatives": 8
+    },
+    "per_repository_stats": {
+      "encode/httpx": {
+        "total": 6,
+        "passed": 5,
+        "split": "dev"
+      },
+      "pallets/click": {
+        "total": 5,
+        "passed": 5,
+        "split": "dev"
+      },
+      "fastapi/fastapi": {
+        "total": 5,
+        "passed": 4,
+        "split": "val"
+      },
+      "psf/requests": {
+        "total": 4,
+        "passed": 3,
+        "split": "val"
+      },
+      "pydantic/pydantic": {
+        "total": 5,
+        "passed": 3,
+        "split": "test"
+      },
+      "pallets/flask": {
+        "total": 5,
+        "passed": 3,
+        "split": "test"
+      },
+      "axios/axios": {
+        "total": 2,
+        "passed": 1,
+        "split": "test"
+      }
+    },
+    "per_category_stats": {
+      "constant_value_change": {
+        "total": 2,
+        "passed": 2
+      },
+      "parameter_renamed": {
+        "total": 1,
+        "passed": 1
+      },
+      "behavioral_contract": {
+        "total": 4,
+        "passed": 0
+      },
+      "negative_control_refactor": {
+        "total": 7,
+        "passed": 7
+      },
+      "negative_control_test_only": {
+        "total": 3,
+        "passed": 3
+      },
+      "negative_control_doc_in_sync": {
+        "total": 2,
+        "passed": 2
+      },
+      "default_value_change": {
+        "total": 5,
+        "passed": 4
+      },
+      "symbol_removed": {
+        "total": 3,
+        "passed": 2
+      },
+      "config_flag_change": {
+        "total": 3,
+        "passed": 1
+      },
+      "negative_control_historical_doc": {
+        "total": 1,
+        "passed": 1
+      },
+      "negative_control_private_rename": {
+        "total": 1,
+        "passed": 1
+      }
+    }
+  }
+}

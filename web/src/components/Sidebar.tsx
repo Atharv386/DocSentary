@@ -6,7 +6,8 @@ import {
   History,
   Settings,
   Layers,
-  ChevronRight
+  ChevronRight,
+  Activity
 } from "lucide-react";
 
 interface SidebarProps {
@@ -18,6 +19,7 @@ interface SidebarProps {
 export const Sidebar: React.FC<SidebarProps> = ({ currentTab, setCurrentTab, onOpenLanding }) => {
   const navItems = [
     { id: "pr", label: "Pull Requests", icon: GitPullRequest, badge: "Live" },
+    { id: "evaluations", label: "Evaluations", icon: Activity, badge: "78.1%" },
     { id: "findings", label: "Findings", icon: ShieldAlert },
     { id: "repos", label: "Repositories", icon: BookOpen },
     { id: "history", label: "Scan History", icon: History },

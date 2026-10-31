@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import { LandingPage } from "./components/LandingPage";
 import { Sidebar } from "./components/Sidebar";
 import { PRAnalysisView } from "./components/PRAnalysisView";
+import { BenchmarkView } from "./components/BenchmarkView";
 import { ExternalLink } from "lucide-react";
 
 export const App: React.FC = () => {
@@ -52,6 +53,7 @@ export const App: React.FC = () => {
 
         {/* Tab Views */}
         {currentTab === "pr" && <PRAnalysisView />}
+        {currentTab === "evaluations" && <BenchmarkView />}
 
         {currentTab === "findings" && (
           <div className="flex-1 p-8 bg-brand-dark overflow-y-auto">
