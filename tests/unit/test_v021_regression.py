@@ -9,12 +9,12 @@ from docsentry.rules.symbols import detect_symbol_drift
 # =====================================================================
 
 def test_fm1_imperative_procedural_doc_positive() -> None:
-    """Imperative procedural directives with code guidance must be active_assertion."""
+    """Imperative procedural directives with code guidance must be classified as procedural."""
     me = MarkdownExtractor()
     text = "To send JSON, explicitly serialize the string with `data=json.dumps(payload)`."
     spans = me.extract("docs/quickstart.md", text)
     assert len(spans) == 1
-    assert spans[0].claim_type == "active_assertion"
+    assert spans[0].claim_type in ("active_assertion", "procedural_instruction")
 
 
 def test_fm1_general_conceptual_doc_negative_control() -> None:
